@@ -21,9 +21,16 @@
 	BIOS_VIDEO_MODE		= 0x03
 	BIOS_WRITE_CHAR_TTY	= 0x0e
 
+	BIOS_DISK		= 0x13
+	BIOS_DISK_READ_SECTORS	= 0x02
+
 	PROTECTED_MODE		= 00000001b
 
 boot:
+	;; Save boot disk in memory
+	mov [disk], dl
+
+	;; The A20 gate allows us to read mode than 1MB
 	mov ax, BIOS_A20_CHECK_SUPPORT
 	int BIOS_A20
 	jb error
@@ -50,6 +57,15 @@ boot:
 	mov al, BIOS_VIDEO_MODE
 	mov ah, BIOS_SET_VIDEO_MODE
 	int BIOS_VIDEO
+
+	mov ah, BIOS_DISK_READ_SECTORS
+	mov al, 1		; sectors to read
+	mov ch, 0		; cylinder idx
+	mov dh, 0		; head idx
+	mov cl, 2		; sector idx (second 512 bytes)
+	mov dl, [disk]		; disk idx
+	mov bx, second_sector
+	int BIOS_DISK
 
 	cli
 	lgdt [gdt_pointer]	; load the GDT table
@@ -114,6 +130,15 @@ gdt_pointer:
 	CODE_SEG = gdt_code - gdt_start
 	DATA_SEG = gdt_data - gdt_start
 
+disk:		db 0x0
+error_str:	db "ERROR", 0
+
+	times (MBR_SIZE - 2) - ($-$$) db 0
+	dw MBR_MAGIC
+	
+	;; Second 512 byte sector
+second_sector:	
+
 	;; 32 bit protected mode
 	use32
 
@@ -129,26 +154,29 @@ boot32:
 	mov gs, ax
 	mov ss, ax
 
+	mov esp, kernel_stack_top
 	mov esi, hello_str
-	jmp vga_print_and_halt
+	call vga_print
+	cli
+	hlt
 
-vga_print_and_halt:
+vga_print:
 	mov ebx, VGA_BUFFER
 	mov ah, 4
 	.loop:
 	lodsb
 	or al, al
-	jz halt32
+	jz .end
 	or eax, 0x0100
 	mov word [ebx], ax
 	add ebx, 2
 	jmp .loop
-halt32:
-	cli
-	hlt
+	.end:
+	ret
 
 hello_str:	db "PROTECTED MODE!", 0
-error_str:	db "ERROR", 0
 
-	times (MBR_SIZE - 2) - ($-$$) db 0
-	dw MBR_MAGIC
+	align 4
+kernel_stack_bottom:
+	times 16384 db 0	; 16 KB
+kernel_stack_top:	
