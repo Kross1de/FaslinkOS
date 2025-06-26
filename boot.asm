@@ -1,4 +1,7 @@
-	format binary as "bin"
+	format elf
+
+	section '.boot' executable
+	public boot
 
 	;; MBR
 	MBR_SIZE		= 512
@@ -148,6 +151,9 @@ second_sector:
 
 	;; 32 bit protected mode
 	use32
+	section '.boot' executable
+	extrn kmain
+	public vga_print
 
 	VGA_BUFFER = 0xb8000
 
@@ -155,12 +161,15 @@ boot32:
 	;; WE IN PROTECTED MODE HELLL YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...
 
 	mov esp, kernel_stack_top
-	mov esi, hello_str
-	call vga_print
+	call kmain
 	cli
 	hlt
 
 vga_print:
+	push ebp
+	mov ebp, esp
+	mov esi, [ebp + 8]
+	
 	mov ebx, VGA_BUFFER
 	mov ah, 4
 	.loop:
@@ -172,10 +181,10 @@ vga_print:
 	add ebx, 2
 	jmp .loop
 	.end:
+	pop ebp
 	ret
 
-hello_str:	db "PROTECTED MODE!", 0
-
+section '.bss'
 	align 4
 kernel_stack_bottom:
 	times 16384 db 0	; 16 KB
