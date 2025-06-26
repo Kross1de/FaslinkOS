@@ -73,7 +73,14 @@ boot:
 	or eax, PROTECTED_MODE
 	mov cr0, eax
 
-	jmp CODE_SEG:boot32
+	mov ax, DATA_SEG
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+
+	jmp CODE_SEG:second_sector
 
 error:
 	mov si, error_str
@@ -146,13 +153,6 @@ second_sector:
 
 boot32:
 	;; WE IN PROTECTED MODE HELLL YEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...
-
-	mov ax, DATA_SEG
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
 
 	mov esp, kernel_stack_top
 	mov esi, hello_str
