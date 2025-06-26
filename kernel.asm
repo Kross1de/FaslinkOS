@@ -2,8 +2,8 @@ format elf
 section '.text' executable
 public kmain
 public busy_loop
-extrn vga_putchar
-extrn vga_puts
+
+include 'includes/vga.inc'
 
 use32
 
