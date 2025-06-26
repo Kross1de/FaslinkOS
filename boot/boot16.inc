@@ -19,20 +19,17 @@ boot:
     ; Save boot disk in memory
     mov [disk], dl
 
-    call bios_enable_a20_or_error
+    call bios_enable_a20
+    test ax, ax
+    jnz panic16
 
     mov al, BIOS_VIDEO_MODE
     mov ah, BIOS_VIDEO_SET_MODE
     int BIOS_VIDEO
 
-    mov ah, BIOS_DISK_READ_SECTORS
-    mov al, 1 ; sectors to read
-    mov ch, 0 ; cylinder idx
-    mov dh, 0 ; head idx
-    mov cl, 2 ; sector idx (second 512 bytes)
-    mov dl, [disk] ; disk idx
-    mov bx, second_sector;
-    int BIOS_DISK
+    call bios_disk_read
+    test ax, ax
+    jnz panic16
 
     cli
     lgdt [gdt_pointer] ; load the gdt table
@@ -49,6 +46,13 @@ boot:
 
     jmp CODE_SEG:second_sector ; long jump to the code segment
 
+panic16:
+    push panic_str
+    call bios_print
+    ; TODO: print out registers
+    ; TODO: print out call stack
+    ; TODO: print out memory?
+    ; fall through to halt
 halt:
     cli ; clear interrupt flag
     hlt ; halt execution
@@ -58,6 +62,8 @@ include 'include/mbr.inc'
 include 'include/bios.inc'
 
 disk:      db 0x0
+panic_str: db "PANIC", 0
+hello:     db "Hello from real", 13, 10, 0
 
 align 4
 real_stack_bottom:
