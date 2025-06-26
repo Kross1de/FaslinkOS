@@ -5,6 +5,8 @@ use32
 public vga_init
 public vga_putchar
 public vga_puts
+public vga_putnl
+extrn busy_loop
 
 VGA_BUFFER = 0xb8000
 VGA_WIDTH = 80
@@ -36,6 +38,15 @@ vga_init:
     mov word [vga_y], 0
     mov word [vga_fg_colour], VGA_COLOUR_LIGHT_BROWN
     mov word [vga_bg_colour], VGA_COLOUR_MAGENTA
+    ret
+
+vga_putnl:
+    push ebp
+    mov ebp, esp
+    push ASCII_NEWLINE
+    call vga_putchar
+    mov esp, ebp
+    pop ebp
     ret
 
 vga_putchar:
@@ -112,6 +123,7 @@ vga_putchar_at:
     mov ch, al
     mov word [edx], cx
 .return:
+    call busy_loop
     mov esp, ebp
     pop ebp
     ret
