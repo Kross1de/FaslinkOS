@@ -53,9 +53,9 @@ panic16:
     ; TODO: print out call stack
     ; TODO: print out memory?
     ; fall through to halt
-halt:
-    cli ; clear interrupt flag
-    hlt ; halt execution
+halt16:
+    cli
+    hlt
 
 include 'include/gdt.inc'
 include 'include/mbr.inc'
@@ -63,7 +63,6 @@ include 'include/bios.inc'
 
 disk:      db 0x0
 panic_str: db "PANIC", 0
-hello:     db "Hello from real", 13, 10, 0
 
 align 4
 real_stack_bottom:

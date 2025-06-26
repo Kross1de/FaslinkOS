@@ -56,6 +56,7 @@ bios_enable_a20:
 bios_disk_read:
     push bp
     mov bp, sp
+    push bx
 
     push BIOS_DISK_READ_RETRIES
 .loop:
@@ -83,6 +84,7 @@ bios_disk_read:
 .success:
     mov ax, 0
 .return:
+    pop bx
     mov sp, bp
     pop bp
     ret
@@ -90,6 +92,7 @@ bios_disk_read:
 bios_print:
     push bp
     mov bp, sp
+    push si
     mov si, [bp + 4]
 
     mov ah, BIOS_WRITE_CHAR_TTY
@@ -101,6 +104,7 @@ bios_print:
     jmp .loop
 
 .end:
+    pop si
     mov sp, bp
     pop bp
     ret

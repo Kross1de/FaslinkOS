@@ -8,6 +8,8 @@ VGA_BUFFER = 0xb8000
 vga_print:
     push ebp
     mov ebp, esp
+    push esi
+    push ebx
     mov esi, [ebp + 8]
 
     mov ebx, VGA_BUFFER
@@ -20,6 +22,8 @@ vga_print:
     add ebx,2
     jmp .loop
 .end:
+    pop ebx
+    pop esi
     mov esp, ebp
     pop ebp
     ret

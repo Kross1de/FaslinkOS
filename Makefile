@@ -1,16 +1,20 @@
 CC=gcc
 AS=fasm
+LD=ld
 CFLAGS=-m32 -nostdlib -ffreestanding -fno-pic -Wall -Wextra -Werror
-LDFLAGS=-T boot/linker.ld -fno-pic
-OBJS=boot/boot.o vga.o
+LDFLAGS=-T boot/linker.ld -melf_i386
+OBJS=boot/boot.o boot/kernel.o vga.o
 
 all:disk.img
 
-disk.img:$(OBJS) boot/kernel.c
-	$(CC) $(CFLAGS) $(LDFLAGS) boot/kernel.c $(OBJS) -o $@
+disk.img:$(OBJS)
+	$(LD) $(LDFLAGS) $(OBJS) -o $@
 
 boot/boot.o:boot/boot.asm
 	$(AS) $< $@
+
+boot/kernel.o:boot/kernel.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 vga.o:vga.asm
 	$(AS) $< $@
