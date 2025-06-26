@@ -12,19 +12,25 @@
 	
 	;; BIOS functions
 	BIOS_A20		= 0x15
-	A20_CHECK_SUPPORT	= 0x2403
-	A20_CHECK_GATE		= 0x2402
-	A20_ENABLE_GATE		= 0x2401
+	BIOS_A20_CHECK_SUPPORT	= 0x2403
+	BIOS_A20_CHECK_GATE	= 0x2402
+	BIOS_A20_ENABLE_GATE	= 0x2401
 	
 	BIOS_VIDEO		= 0x10
-	SET_VIDEO_MODE		= 0x00
-	VIDEO_MODE		= 0x03
-	WRITE_CHAR_TTY		= 0x0e
+	BIOS_SET_VIDEO_MODE	= 0x00
+	BIOS_VIDEO_MODE		= 0x03
+	BIOS_WRITE_CHAR_TTY	= 0x0e
 
 	PROTECTED_MODE		= 00000001b
 
 boot:
-	mov ax, A20_CHECK_SUPPORT
+	mov ax, BIOS_A20_CHECK_SUPPORT
+	int BIOS_A20
+	jb error
+	cmp ah, 0
+	jnz error
+
+	mov ax, BIOS_A20_CHECK_GATE
 	int BIOS_A20
 	jb error
 	cmp ah, 0
@@ -34,15 +40,15 @@ boot:
 	jz .a20_activated
 
 	;; Activate A20 gate
-	mov ax, A20_ENABLE_GATE
+	mov ax, BIOS_A20_ENABLE_GATE
 	int BIOS_A20
 	jb error
 	cmp ah, 0
 	jnz error
 
 	.a20_activated:
-	mov al, VIDEO_MODE
-	mov ah, SET_VIDEO_MODE
+	mov al, BIOS_VIDEO_MODE
+	mov ah, BIOS_SET_VIDEO_MODE
 	int BIOS_VIDEO
 
 	cli
@@ -58,7 +64,7 @@ error:
 	jmp bios_print_and_halt
 
 bios_print_and_halt:
-	mov ah, WRITE_CHAR_TTY
+	mov ah, BIOS_WRITE_CHAR_TTY
 	mov bl, 0
 	.loop:
 	lodsb
