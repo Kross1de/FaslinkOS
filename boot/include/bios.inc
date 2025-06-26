@@ -67,7 +67,7 @@ bios_disk_read:
     push ax
 
     mov ah, BIOS_DISK_READ_SECTORS
-    mov al, 1   ; sectors to read
+    mov al, 2   ; sectors to read
     mov ch, 0   ; cylinder idx
     mov dh, 0   ; head idx
     mov cl, 2   ; sector idx (second 512 bytes)
