@@ -101,6 +101,7 @@ bios_print:
     jmp .loop
 
 .end:
+    mov sp, bp
     pop bp
     ret
 

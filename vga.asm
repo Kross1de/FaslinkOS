@@ -20,5 +20,6 @@ vga_print:
     add ebx,2
     jmp .loop
 .end:
+    mov esp, ebp
     pop ebp
     ret
