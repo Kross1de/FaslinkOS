@@ -3,7 +3,7 @@ use32
 
 extrn kmain
 extrn vga_init
-extrn vga_print
+extrn vga_puts
 
 boot32:
     mov esp, kernel_stack_top
@@ -11,7 +11,7 @@ boot32:
     call kmain
 panic32:
     push panic_str
-    call vga_print
+    call vga_puts
     ; TODO: print out registers
     ; TODO: print out call stack
     ; TODO: print out memory?

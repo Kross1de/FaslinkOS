@@ -1,5 +1,5 @@
-extern void vga_print(char*);
+#include "kernel.h"
 
 void kmain() {
-    vga_print("Hello from kernel.c");
+    vga_puts("Hello from kernel.c\n");
 }

@@ -3,8 +3,8 @@ section '.text' executable
 ;; 32 bit protected mode
 use32
 public vga_init
-public vga_putc
-public vga_print
+public vga_putchar
+public vga_puts
 
 VGA_BUFFER = 0xb8000
 VGA_WIDTH = 80
@@ -34,13 +34,14 @@ ASCII_CARRIAGE_RETURN = 0x0d
 vga_init:
     mov word [vga_x], 0
     mov word [vga_y], 0
-    mov word [vga_colour], VGA_COLOUR_WHITE
+    mov word [vga_fg_colour], VGA_COLOUR_LIGHT_BROWN
+    mov word [vga_bg_colour], VGA_COLOUR_MAGENTA
     ret
 
-vga_putc:
+vga_putchar:
     push ebp
     mov ebp, esp
-    ; Ignore EAX, ECX and EDX
+    ; Ignore EAX, ECX, and EDX
     mov eax, [ebp + 8]
     cmp eax, ASCII_NEWLINE
     je .newline
@@ -48,9 +49,10 @@ vga_putc:
     je .carriage
     pushd [vga_y]
     pushd [vga_x]
-    pushd [vga_colour]
+    pushd [vga_bg_colour]
+    pushd [vga_fg_colour]
     pushd [ebp + 8]
-    call vga_putc_at
+    call vga_putchar_at
     mov eax, [vga_x]
     inc eax
     cmp eax, VGA_WIDTH
@@ -68,7 +70,7 @@ vga_putc:
     pop ebp
     ret
 
-vga_print:
+vga_puts:
     push ebp
     mov ebp, esp
     push esi
@@ -79,7 +81,7 @@ vga_print:
     or al,al
     jz .return
     push eax
-    call vga_putc
+    call vga_putchar
     jmp .loop
 .return:
     pop ebx
@@ -88,25 +90,31 @@ vga_print:
     pop ebp
     ret
 
-vga_putc_at:
+vga_putchar_at:
     push ebp
     mov ebp, esp
     or eax, eax
-    mov al, [ebp + (4 * 5)]
+    mov al, [ebp + (4 * 6)]
     mov ecx, VGA_WIDTH
     mul ecx
-    add al, [ebp + (4 * 4)]
+    add al, [ebp + (4 * 5)]
     shl eax, 1
     add eax, VGA_BUFFER
+    mov edx, eax
     mov cl, [ebp + (4 * 2)]
     mov ch, [ebp + (4 * 3)]
-    mov word [eax], cx
+    mov al, [ebp + (4 * 4)]
+    shl al, 4
+    or al, ch
+    mov ch, al
+    mov word [edx], cx
 .return:
     mov esp, ebp
     pop ebp
     ret
 
 section '.bss'
-vga_x:      dd 0
-vga_y:      dd 0
-vga_colour: dd 0
+vga_x:         dd 0
+vga_y:         dd 0
+vga_fg_colour: dw 0
+vga_bg_colour: dw 0

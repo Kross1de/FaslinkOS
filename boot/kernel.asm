@@ -1,7 +1,8 @@
 format elf
 section '.text' executable
 public kmain
-extrn vga_print
+extrn vga_putchar
+extrn vga_puts
 
 use32
 
@@ -13,7 +14,7 @@ kmain:
     push ecx
     push edx
     push hello_str
-    call vga_print
+    call vga_puts
     pop edx
     pop ecx
     pop eax
