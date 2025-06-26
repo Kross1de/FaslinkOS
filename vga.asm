@@ -1,3 +1,5 @@
+format elf
+section '.text' executable
 ;; 32 bit protected mode
 use32
 public vga_print
@@ -9,7 +11,6 @@ vga_print:
     mov esi, [ebp + 8]
 
     mov ebx, VGA_BUFFER
-    mov ah, 4
 .loop:
     lodsb
     or al,al

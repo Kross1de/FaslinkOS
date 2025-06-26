@@ -1,6 +1,3 @@
-format elf
-section '.bss'
-
 public kernel_stack_top
 
 align 4
