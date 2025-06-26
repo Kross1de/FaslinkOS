@@ -99,11 +99,11 @@ bios_print:
 .loop:
     lodsb
     or al,al
-    jz .end
+    jz .return
     int BIOS_VIDEO
     jmp .loop
 
-.end:
+.return:
     pop si
     mov sp, bp
     pop bp

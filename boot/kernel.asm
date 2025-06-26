@@ -9,8 +9,14 @@ kmain:
     push ebp
     mov ebp, esp
 
+    push eax
+    push ecx
+    push edx
     push hello_str
     call vga_print
+    pop edx
+    pop ecx
+    pop eax
 .return:
     mov esp, ebp
     pop ebp

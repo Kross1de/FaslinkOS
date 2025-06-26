@@ -16,12 +16,12 @@ vga_print:
 .loop:
     lodsb
     or al,al
-    jz .end
+    jz .return
     or eax,0x0100
     mov word [ebx], ax
     add ebx,2
     jmp .loop
-.end:
+.return:
     pop ebx
     pop esi
     mov esp, ebp
