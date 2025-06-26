@@ -5,6 +5,7 @@ SECTIONS {
 	 .text :
 	 {
 		*(.boot)
+		*(.boot32)
 		*(.text)
 	 }
 	 .bss :
