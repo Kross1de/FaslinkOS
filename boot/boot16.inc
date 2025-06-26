@@ -5,6 +5,8 @@ public boot
 
 org MBR_ENTRY
 
+BUSY_LOOP_SIZE = 5000000
+
 ; Bit to set in special CPU register cr0
 PROTECTED_MODE = 00000001b
 
@@ -15,6 +17,14 @@ boot:
 
 .flushcs:
     mov sp, real_stack_top
+
+    push hello16_str
+    call bios_print
+    call busy_loop16
+    call busy_loop16
+    call busy_loop16
+    call busy_loop16
+    call busy_loop16
 
     ; Save boot disk in memory
     mov [disk], dl
@@ -32,7 +42,9 @@ boot:
     jnz panic16
 
     cli
+
     lgdt [gdt_pointer] ; load the gdt table
+
     mov eax, cr0
     or eax, PROTECTED_MODE ; set the protected mode bit on special CPU reg cr0
     mov cr0, eax
@@ -57,12 +69,23 @@ halt16:
     cli
     hlt
 
+busy_loop16:
+    mov eax, BUSY_LOOP_SIZE
+.loop:
+    test eax, eax
+    je .return
+    dec eax
+    jmp .loop
+.return:
+    ret
+
 include 'include/gdt.inc'
 include 'include/mbr.inc'
 include 'include/bios.inc'
 
 disk:      db 0x0
 panic_str: db "PANIC", 0
+hello16_str: db "Hello from real mode", 0
 
 align 4
 real_stack_bottom:

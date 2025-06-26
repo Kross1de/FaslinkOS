@@ -75,6 +75,7 @@ vga_puts:
     mov ebp, esp
     push esi
     push ebx
+    xor eax, eax
     mov esi, [ebp + 8]
 .loop:
     lodsb
@@ -93,11 +94,11 @@ vga_puts:
 vga_putchar_at:
     push ebp
     mov ebp, esp
-    or eax, eax
+    xor eax, eax
     mov al, [ebp + (4 * 6)]
     mov ecx, VGA_WIDTH
     mul ecx
-    or ecx, ecx
+    xor ecx, ecx
     mov cl, [ebp + (4 * 5)]
     add eax, ecx
     shl eax, 1
