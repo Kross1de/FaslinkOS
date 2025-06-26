@@ -1,6 +1,7 @@
 format elf
 section '.text' executable
 public kmain
+public busy_loop
 extrn vga_putchar
 extrn vga_puts
 
@@ -21,6 +22,16 @@ kmain:
 .return:
     mov esp, ebp
     pop ebp
+    ret
+
+busy_loop:
+    mov eax, 50000000
+.loop:
+    test eax, eax
+    je .return
+    dec eax
+    jmp .loop
+.return:
     ret
 
 hello_str: db "Hello from kernel.asm", 0x0a, 0
