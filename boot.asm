@@ -5,6 +5,8 @@
 	A20_ENABLE_GATE		= 0x2401
 	
 	BIOS_VIDEO		= 0x10
+	SET_VIDEO_MODE		= 0x00
+	VGA_256			= 0x13
 	WRITE_CHAR_TTY		= 0x0e
 
 	;; MBR
@@ -30,6 +32,10 @@ boot:
 	jnz .error
 
 	.a20_activated:
+	mov al, VGA_256
+	mov ah, SET_VIDEO_MODE
+	int BIOS_VIDEO
+	
 	mov si, hello
 	jmp .print_and_halt
 
@@ -38,11 +44,13 @@ boot:
 
 	.print_and_halt:
 	mov ah, WRITE_CHAR_TTY
+	mov bl, 0
 	.loop:
 	lodsb
 	or al, al
 	jz halt
 	int BIOS_VIDEO
+	inc bl
 	jmp .loop
 halt:
 	cli			; clear interrupt flag
