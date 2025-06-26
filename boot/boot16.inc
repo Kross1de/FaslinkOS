@@ -11,7 +11,10 @@ PROTECTED_MODE = 00000001b
 REAL_STACK_SIZE = 128 ; Not big, but enough to call some basic functions
 
 boot:
-    mov esp, real_stack_top
+    jmp 0x0000:.flushcs
+
+.flushcs:
+    mov sp, real_stack_top
 
     ; Save boot disk in memory
     mov [disk], dl
