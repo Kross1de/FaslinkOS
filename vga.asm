@@ -97,7 +97,9 @@ vga_putchar_at:
     mov al, [ebp + (4 * 6)]
     mov ecx, VGA_WIDTH
     mul ecx
-    add al, [ebp + (4 * 5)]
+    or ecx, ecx
+    mov cl, [ebp + (4 * 5)]
+    add eax, ecx
     shl eax, 1
     add eax, VGA_BUFFER
     mov edx, eax
