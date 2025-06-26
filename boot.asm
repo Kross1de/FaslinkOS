@@ -55,9 +55,9 @@ boot:
 
 error:
 	mov si, error_str
-	jmp print_and_halt
+	jmp bios_print_and_halt
 
-print_and_halt:
+bios_print_and_halt:
 	mov ah, WRITE_CHAR_TTY
 	mov bl, 0
 	.loop:
@@ -124,15 +124,15 @@ boot32:
 	mov ss, ax
 
 	mov esi, hello_str
-	jmp print_and_halt32
+	jmp vga_print_and_halt
 
-print_and_halt32:
+vga_print_and_halt:
 	mov ebx, VGA_BUFFER
 	mov ah, 4
 	.loop:
 	lodsb
 	or al, al
-	jz halt
+	jz halt32
 	or eax, 0x0100
 	mov word [ebx], ax
 	add ebx, 2
