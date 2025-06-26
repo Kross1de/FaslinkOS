@@ -22,4 +22,4 @@ kmain:
     pop ebp
     ret
 
-hello_str: db "Hello from kernel.asm", 10, 0
+hello_str: db "Hello from kernel.asm", 0x0a, 0

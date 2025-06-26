@@ -2,10 +2,12 @@
 use32
 
 extrn kmain
+extrn vga_init
 extrn vga_print
 
 boot32:
     mov esp, kernel_stack_top
+    call vga_init
     call kmain
 panic32:
     push panic_str

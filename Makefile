@@ -13,8 +13,8 @@ disk.img:$(OBJS)
 boot/boot.o:boot/boot.asm
 	$(AS) $< $@
 
-boot/kernel.o:boot/kernel.c
-	$(CC) $(CFLAGS) -c $< -o $@
+boot/kernel.o:boot/kernel.asm
+	$(AS) $< $@
 
 vga.o:vga.asm
 	$(AS) $< $@
