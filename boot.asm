@@ -21,6 +21,8 @@
 	VIDEO_MODE		= 0x03
 	WRITE_CHAR_TTY		= 0x0e
 
+	PROTECTED_MODE		= 00000001b
+
 boot:
 	mov ax, A20_CHECK_SUPPORT
 	int BIOS_A20
@@ -46,7 +48,7 @@ boot:
 	cli
 	lgdt [gdt_pointer]	; load the GDT table
 	mov eax, cr0
-	or eax, 0x1
+	or eax, PROTECTED_MODE
 	mov cr0, eax
 
 	jmp CODE_SEG:boot32
@@ -71,22 +73,34 @@ halt:
 
 	;; Global Descriptor Table
 
+	GDT_BASE_LOW		= 0x0
+	GDT_BASE_MID		= 0x0
+	GDT_BASE_HIGH		= 0x0
+	GDT_LIMIT_LOW		= 0xFFFF
+	GDT_LIMIT_HIGH		= 0xF
+	GDT_ACCESS_PRESENT	= 10000000b
+	GDT_ACCESS_SYSTEM	= 00010000b
+	GDT_ACCESS_EXECUTABLE	= 00001000b
+	GDT_ACCESS_RW		= 00000010b
+	GDT_FLAG_GRANULARITY	= 10000000b
+	GDT_FLAG_SIZE		= 01000000b
+
 gdt_start:
 	dq 0x0
 gdt_code:
-	dw 0xFFFF
-	dw 0x0
-	db 0x0
-	db 10011010b
-	db 11001111b
-	db 0x0
+	dw GDT_LIMIT_LOW
+	dw GDT_BASE_LOW
+	db GDT_BASE_MID
+	db GDT_ACCESS_PRESENT or GDT_ACCESS_SYSTEM or GDT_ACCESS_RW or GDT_ACCESS_EXECUTABLE
+	db GDT_FLAG_GRANULARITY or GDT_FLAG_SIZE or GDT_LIMIT_HIGH
+	db GDT_BASE_HIGH
 gdt_data:
-	dw 0xFFFF
-	dw 0x0
-	db 0x0
-	db 10010010b
-	db 11001111b
-	db 0x0
+	dw GDT_LIMIT_LOW
+	dw GDT_BASE_LOW
+	db GDT_BASE_MID
+	db GDT_ACCESS_PRESENT or GDT_ACCESS_SYSTEM or GDT_ACCESS_RW
+	db GDT_FLAG_GRANULARITY or GDT_FLAG_SIZE or GDT_LIMIT_HIGH
+	db GDT_BASE_HIGH
 gdt_end:
 gdt_pointer:
 	dw gdt_end - gdt_start
@@ -114,14 +128,13 @@ boot32:
 
 print_and_halt32:
 	mov ebx, VGA_BUFFER
-	mov ah, 0
+	mov ah, 4
 	.loop:
 	lodsb
 	or al, al
 	jz halt
 	or eax, 0x0100
 	mov word [ebx], ax
-	inc ah
 	add ebx, 2
 	jmp .loop
 halt32:
