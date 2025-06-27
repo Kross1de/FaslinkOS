@@ -1,9 +1,12 @@
 format elf
 section '.text' executable
 public kmain
-public busy_loop
+extrn busy_loop
 
-include 'includes/vga.inc'
+include 'include/vga.inc'
+include 'include/string.inc'
+
+extrn cFn
 
 use32
 
@@ -13,6 +16,7 @@ kmain:
 
     push hello_str
     call vga_puts
+    call cFn
     pushd 16
     pushd itoa_buf
     pushd 0xC8F3FACE
@@ -29,16 +33,6 @@ kmain:
 .return:
     mov esp, ebp
     pop ebp
-    ret
-
-busy_loop:
-    mov eax, 50000000
-.loop:
-    test eax, eax
-    je .return
-    dec eax
-    jmp .loop
-.return:
     ret
 
 hello_str: db "Hello from kernel.asm", 0x0a, 0
