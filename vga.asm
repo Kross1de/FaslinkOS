@@ -44,17 +44,15 @@ vga_init:
     ret
 
 vga_putnl:
-    push ebp
-    mov ebp, esp
+    enter 0, 0
     push ASCII_NEWLINE
     call vga_putchar
     mov esp, ebp
-    pop ebp
+    leave
     ret
 
 vga_putchar:
-    push ebp
-    mov ebp, esp
+    enter 0, 0
     ; Ignore EAX, ECX, and EDX
     mov eax, [ebp + 8]
     cmp eax, ASCII_NEWLINE
@@ -84,13 +82,11 @@ vga_putchar:
 .carriage:
     mov dword [vga_x], 0
 .return:
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 vga_puts:
-    push ebp
-    mov ebp, esp
+    enter 0, 0
     push esi
     push ebx
     xor eax, eax
@@ -105,13 +101,11 @@ vga_puts:
 .return:
     pop ebx
     pop esi
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 vga_putchar_at:
-    push ebp
-    mov ebp, esp
+    enter 0, 0
     xor eax, eax
     mov al, [ebp + (4 * 6)]
     mov ecx, VGA_WIDTH
@@ -130,13 +124,11 @@ vga_putchar_at:
     mov ch, al
     mov word [edx], cx
 .return:
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 vga_scroll:
-    push ebp
-    mov ebp, esp
+    enter 0, 0
     push ebx
 
     mov ebx, VGA_WIDTH
@@ -157,8 +149,7 @@ vga_scroll:
     jmp .loop
 .return:
     mov dword [vga_y], VGA_HEIGHT - 1
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 section '.bss'

@@ -11,9 +11,7 @@ extrn cFn
 use32
 
 kmain:
-    push ebp
-    mov ebp, esp
-
+    enter 0, 0
     push hello_str
     call vga_puts
     call cFn
@@ -31,9 +29,8 @@ kmain:
     push itoa_err_str
     call vga_puts
 .return:
-    mov esp, ebp
-    pop ebp
-    ret
+		leave
+		ret
 
 hello_str: db "Hello from kernel.asm", 0x0a, 0
 itoa_err_str: db "call itoa failed", 0x0a, 0

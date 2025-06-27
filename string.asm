@@ -10,8 +10,7 @@ include 'include/kernel.inc'
 include 'include/vga.inc'
 
 itoa:
-    push ebp
-    mov ebp, esp
+	enter 1 * WORD_SIZE, 0
 
 ; args
 num_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
@@ -19,13 +18,11 @@ str_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
 base_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
 ; variables
 p_offset = -1 * 1 * WORD_SIZE
-VAR_SIZE = 1 * WORD_SIZE
 
     ; TODO, check base is less than 36
     mov eax, [ebp + str_offset]
     test eax, eax
     jz .error
-    sub esp, VAR_SIZE
     mov eax, [ebp + str_offset]
     mov [ebp + p_offset], eax
 .divmod_loop:
@@ -61,13 +58,11 @@ VAR_SIZE = 1 * WORD_SIZE
     call vga_puts
     mov eax, 0
 .return:
-    mov esp, ebp
-    pop ebp
+	leave
     ret
 
 strnrev:
-    push ebp
-    mov ebp, esp
+	enter 0, 0
     push ebx
     push esi
     push edi
@@ -101,13 +96,12 @@ n_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
 .return:
     pop edi
     pop esi
-    mov esp, ebp
-    pop ebp
+    pop ebx
+    leave
     ret
 
 memcpy:
-    push ebp
-    mov ebp, esp
+	enter 0, 0
     push esi
     push edi
     push ecx
@@ -133,8 +127,7 @@ n_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
     pop ecx
     pop edi
     pop esi
-    mov esp, ebp
-    pop ebp
+    leave
     ret
 
 itoa_err_str: db "Error: itoa() failed", 10, 0
