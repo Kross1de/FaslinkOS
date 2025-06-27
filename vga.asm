@@ -91,6 +91,7 @@ vga_puts:
     push ebx
     xor eax, eax
     mov esi, [ebp + 8]
+    ; TODO: check for NULL
 .loop:
     lodsb
     or al,al
