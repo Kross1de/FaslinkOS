@@ -3,7 +3,7 @@ AS=fasm
 LD=ld
 CFLAGS=-m32 -nostdlib -ffreestanding -fno-pic -Wall -Wextra -Werror -fno-stack-protector
 LDFLAGS=-T linker.ld -melf_i386
-OBJS=boot/boot.o kernel.o vga.o string.o idk.o
+OBJS=boot/boot.o kernel.o vga.o string.o test.o
 
 all:build/disk.img
 
@@ -17,7 +17,7 @@ boot/boot.o:boot/boot.asm
 kernel.o:kernel.asm
 	$(AS) $< $@
 
-idk.o:idk.c
+test.o:test.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 vga.o:vga.asm
