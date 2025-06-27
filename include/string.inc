@@ -1,1 +1,2 @@
 extrn itoa
+extrn strnrev

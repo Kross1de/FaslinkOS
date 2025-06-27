@@ -3,6 +3,7 @@ section '.text' executable
 ;; 32 bit protected mode
 use32
 public itoa
+public strnrev
 
 include 'include/kernel.inc'
 include 'include/vga.inc'
@@ -47,8 +48,10 @@ VAR_SIZE = 1 * WORD_SIZE
     mov eax, [ebp + p_offset]
     mov dword [eax], 0
 
-    ; TODO: reverse string
-    ; maybe make a strnrev (and strrev which calls that with strlen?)
+    sub eax, [ebp + str_offset]
+    push eax
+    pushd [ebp + str_offset]
+    call strnrev
 
     mov eax, [ebp + str_offset]
     jmp .return
@@ -57,6 +60,46 @@ VAR_SIZE = 1 * WORD_SIZE
     call vga_puts
     mov eax, 0
 .return:
+    mov esp, ebp
+    pop ebp
+    ret
+
+strnrev:
+    push ebp
+    mov ebp, esp
+    push ebx
+    push esi
+    push edi
+
+; args
+str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+n_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
+    
+    xor eax, eax
+    mov ecx, [ebp + n_offset]
+    shr ecx, 1
+.loop:
+    mov edx, [ebp + str_offset]
+    add edx, eax
+    mov esi, edx
+    xor edx, edx
+    mov dl, [esi]
+    mov ebx, [ebp + str_offset]
+    add ebx, [ebp + n_offset]
+    sub ebx, eax
+    dec ebx
+    mov edi, ebx
+    xor ebx, ebx
+    mov bl, [edi]
+    mov [esi], bl
+    mov [edi], dl
+    inc eax
+    cmp eax, ecx
+    jge .return
+    jmp .loop
+.return:
+    pop edi
+    pop esi
     mov esp, ebp
     pop ebp
     ret
