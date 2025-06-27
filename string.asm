@@ -13,13 +13,14 @@ itoa:
 	enter 1 * WORD_SIZE, 0
 
 ; args
-num_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+value_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
 str_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
 base_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
 ; variables
 p_offset = -1 * 1 * WORD_SIZE
 
-    ; TODO, check base is less than 36
+    ; TODO: check base is less than 36
+    ; TODO: check if base is 10 and value is -ve
     mov eax, [ebp + str_offset]
     test eax, eax
     jz .error
@@ -27,10 +28,10 @@ p_offset = -1 * 1 * WORD_SIZE
     mov [ebp + p_offset], eax
 .divmod_loop:
     mov edx, 0
-    mov eax, [ebp + num_offset]
+    mov eax, [ebp + value_offset]
     mov ecx, [ebp + base_offset]
     div ecx
-    mov [ebp + num_offset], eax
+    mov [ebp + value_offset], eax
     mov eax, itoa_alpha_str
     add eax, edx
     mov dl, [eax]
@@ -38,7 +39,7 @@ p_offset = -1 * 1 * WORD_SIZE
     mov [eax], dl
     inc eax
     mov [ebp + p_offset], eax
-    mov eax, [ebp + num_offset]
+    mov eax, [ebp + value_offset]
     test eax, eax
     jz .end_loop
     jmp .divmod_loop
