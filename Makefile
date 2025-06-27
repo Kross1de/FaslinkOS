@@ -5,9 +5,10 @@ CFLAGS=-m32 -nostdlib -ffreestanding -fno-pic -Wall -Wextra -Werror -fno-stack-p
 LDFLAGS=-T linker.ld -melf_i386
 OBJS=boot/boot.o kernel.o vga.o string.o idk.o
 
-all:disk.img
+all:build/disk.img
 
-disk.img:$(OBJS)
+build/disk.img:$(OBJS)
+	mkdir -p build/
 	$(LD) $(LDFLAGS) $(OBJS) -o $@
 
 boot/boot.o:boot/boot.asm
@@ -26,9 +27,9 @@ string.o:string.asm
 	$(AS) $< $@
 
 clean:
-	rm -f $(OBJS) disk.img
+	rm -rf $(OBJS) build/
 
-run:disk.img
-	qemu-system-i386 -drive file=disk.img,format=raw
+run:build/disk.img
+	qemu-system-i386 -drive file=build/disk.img,format=raw
 
 .PHONY:all clean run
