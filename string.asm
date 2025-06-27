@@ -4,6 +4,7 @@ section '.text' executable
 use32
 public itoa
 public strnrev
+public memcpy
 
 include 'include/kernel.inc'
 include 'include/vga.inc'
@@ -98,6 +99,38 @@ n_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
     jge .return
     jmp .loop
 .return:
+    pop edi
+    pop esi
+    mov esp, ebp
+    pop ebp
+    ret
+
+memcpy:
+    push ebp
+    mov ebp, esp
+    push esi
+    push edi
+    push ecx
+
+; args
+dest_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+src_offset = STACK_ARGS_OFFSET + 2 * WORD_SIZE
+n_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
+    mov edi, [ebp + dest_offset]
+    mov esi, [ebp + src_offset]
+    mov ecx, [ebp + n_offset]
+.loop:
+    mov dl, [esi]
+    mov [edi], dl
+    inc esi
+    inc edi
+    dec ecx
+    test ecx, ecx
+    jz .return
+    jmp .loop
+.return:
+    mov eax, [ebp + dest_offset]
+    pop ecx
     pop edi
     pop esi
     mov esp, ebp

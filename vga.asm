@@ -6,6 +6,9 @@ public vga_init
 public vga_putchar
 public vga_puts
 public vga_putnl
+
+include 'include/string.inc'
+
 extrn busy_loop
 
 VGA_BUFFER = 0xb8000
@@ -74,6 +77,10 @@ vga_putchar:
     mov eax, [vga_y]
     inc eax
     mov [vga_y], eax
+
+    cmp eax, VGA_HEIGHT
+    jne .carriage
+    call vga_scroll
 .carriage:
     mov dword [vga_x], 0
 .return:
@@ -123,7 +130,33 @@ vga_putchar_at:
     mov ch, al
     mov word [edx], cx
 .return:
-    call busy_loop
+    mov esp, ebp
+    pop ebp
+    ret
+
+vga_scroll:
+    push ebp
+    mov ebp, esp
+    push ebx
+
+    mov ebx, VGA_WIDTH
+    shl ebx, 1
+    xor ecx, ecx
+.loop:
+    push ebx
+    inc ecx
+    mov eax, ecx
+    mul ebx
+    add eax, VGA_BUFFER
+    push eax
+    sub eax, ebx
+    push eax
+    call memcpy
+    cmp ecx, VGA_HEIGHT
+    jge .return
+    jmp .loop
+.return:
+    mov dword [vga_y], VGA_HEIGHT - 1
     mov esp, ebp
     pop ebp
     ret
