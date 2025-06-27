@@ -14,8 +14,8 @@ boot32:
     call kmain
 panic:
 panic32:
-    push panic_str
-    call vga_puts
+;    push panic_str
+;    call vga_puts
     ; TODO: print out registers
     ; TODO: print out call stack
     ; TODO: print out memory?
