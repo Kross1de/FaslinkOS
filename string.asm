@@ -24,7 +24,24 @@ p_offset = -1 * 1 * WORD_SIZE
     jl .error
     cmp eax, 36
     jg .error
-    ; TODO: check if base is 10 and value is -ve
+    mov eax, [ebp + base_offset]
+	cmp eax, 10
+	jnz .not_if
+	mov eax, [ebp + value_offset]
+	cmp eax, 0
+	jge .not_if
+	
+	neg eax
+	mov ecx, [ebp + str_offset]
+	mov byte [ecx], '-'
+	inc ecx
+	pushd [ebp + base_offset]
+	push ecx
+	push eax
+	call itoa
+	mov eax, [ebp + str_offset]
+	jmp .return
+.not_if:
     mov eax, [ebp + str_offset]
     test eax, eax
     jz .error
@@ -59,9 +76,6 @@ p_offset = -1 * 1 * WORD_SIZE
     mov eax, [ebp + str_offset]
     jmp .return
 .error:
-    ; TODO: At some point we shouldn't print out
-    push itoa_err_str
-    call vga_puts
     mov eax, 0
 .return:
 	leave
@@ -136,5 +150,4 @@ n_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
     leave
     ret
 
-itoa_err_str: db "Error: itoa() failed", 10, 0
 itoa_alpha_str: db "0123456789abcdefghijklmnopqrstuvwxyz", 0
