@@ -100,6 +100,8 @@ vga_puts:
     call vga_putchar
     jmp .loop
 .return:
+    ; TODO: error cases
+    mov eax, 0
     pop ebx
     pop esi
     leave

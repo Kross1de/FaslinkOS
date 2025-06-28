@@ -12,11 +12,8 @@ use32
 
 kmain:
     enter 0, 0
-    push hello_str
-    call vga_puts
     call run_tests
 .return:
 	leave
 	ret
 
-hello_str: db "Hello from kernel.asm", 0x0a, 0

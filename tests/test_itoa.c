@@ -1,4 +1,4 @@
-#include "../include/vga.h"
+#include "../include/stdio.h"
 #include "../include/string.h"
 extern void panic();
 
@@ -15,30 +15,30 @@ char *test_itoa_base_str(int base) {
 void test_itoa_print_base_str(int base, char *str) {
     char *base_str = test_itoa_base_str(base);
     if (base_str != NULL) {
-        vga_puts(base_str); 
+        puts(base_str); 
     } else {
-        vga_puts("base ");
+        puts("base ");
         str = itoa(base, str, 10);
         if (str == NULL) {
-            vga_puts("Error getting string from base");
+            puts("Error getting string from base");
         } else {
-            vga_puts(str);
+            puts(str);
         }
     }
 }
 
 void test_itoa_panic(int value, char *str, int base) {
     char *s;
-    vga_puts("itoa: Failed getting ");
+    puts("itoa: Failed getting ");
     test_itoa_print_base_str(base, str);
-    vga_puts(" for number ");
+    puts(" for number ");
     s = itoa(value, str, 10);
     if (str == NULL) {
-        vga_puts("Error getting string of number");
+        puts("Error getting string of number");
     } else {
-        vga_puts(s);
+        puts(s);
     }
-    vga_putnl();
+    putnl();
     panic();
 }
 
@@ -51,39 +51,39 @@ void test_itoa_panic(int value, char *str, int base) {
     })
 
 void test_itoa_print_base(int base, char *itoa_buf) {
-    vga_puts("  Printing ");
+    puts("  Printing ");
     test_itoa_print_base_str(base, itoa_buf);
-    vga_puts(" from 0 to 40: ");
+    puts(" from 0 to 40: ");
     for (int i = 0; i <= 40; i++) {
-        vga_puts(TEST_ITOA_OR_PANIC(i, itoa_buf, base)); vga_puts(" ");
+        puts(TEST_ITOA_OR_PANIC(i, itoa_buf, base)); puts(" ");
     }
-    vga_putnl();
+    putnl();
 }
 
 void test_itoa_test_invalid_base(int base, char *itoa_buf) {
     char *str;
     test_itoa_print_base_str(base, itoa_buf);
-    vga_puts(" ");
+    puts(" ");
     str = itoa(123456789, itoa_buf, base);
     if (str != NULL) {
-        vga_puts(" should have returned NULL, instead got:\n");
-        vga_puts(str); vga_putnl();
+        puts(" should have returned NULL, instead got:\n");
+        puts(str); putnl();
         panic();
     }
-    vga_puts("OK ");
+    puts("OK ");
 }
 
 void test_itoa_test_invalid_bases(char *itoa_buf) {
-    vga_puts("    Testing invalid bases: ");
+    puts("    Testing invalid bases: ");
     test_itoa_test_invalid_base(37, itoa_buf);
     test_itoa_test_invalid_base(1, itoa_buf);
     test_itoa_test_invalid_base(-123, itoa_buf);
-    vga_putnl();
+    putnl();
 }
 
 void test_itoa() {
     char itoa_buf[33];
-    vga_puts("Testing char *itoa(int value, char *str, int base)\n");
+    puts("Testing char *itoa(int value, char *str, int base)\n");
     test_itoa_print_base(36, itoa_buf);
     test_itoa_print_base(24, itoa_buf);
     test_itoa_print_base(16, itoa_buf);
@@ -91,23 +91,23 @@ void test_itoa() {
     test_itoa_print_base(8, itoa_buf);
     test_itoa_print_base(2, itoa_buf);
 
-    vga_puts("    Printing negative base 10 numbers from -1 to -16: ");
+    puts("    Printing negative base 10 numbers from -1 to -16: ");
     for (int i = -1; i > -16; i--) {
-        vga_puts(TEST_ITOA_OR_PANIC(i, itoa_buf, 10)); vga_puts(" ");
+        puts(TEST_ITOA_OR_PANIC(i, itoa_buf, 10)); puts(" ");
     }
-    vga_putnl();
+    putnl();
 
-    vga_puts("    Printing -123 in hex shouldn't be negative: ");
-    vga_puts(TEST_ITOA_OR_PANIC(-123, itoa_buf, 16)); vga_putnl();
+    puts("    Printing -123 in hex shouldn't be negative: ");
+    puts(TEST_ITOA_OR_PANIC(-123, itoa_buf, 16)); putnl();
 
-    vga_puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111): ");
-    vga_puts(TEST_ITOA_OR_PANIC(0xCAFEBABE, itoa_buf, 16)); vga_puts(" ");
-    vga_puts(TEST_ITOA_OR_PANIC(951842673, itoa_buf, 10)); vga_puts(" ");
-    vga_puts(TEST_ITOA_OR_PANIC(0713275, itoa_buf, 8)); vga_puts(" ");
-    vga_puts(TEST_ITOA_OR_PANIC(0b010011000111, itoa_buf, 2)); vga_puts(" ");
-    vga_putnl();
+    puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111): ");
+    puts(TEST_ITOA_OR_PANIC(0xCAFEBABE, itoa_buf, 16)); puts(" ");
+    puts(TEST_ITOA_OR_PANIC(951842673, itoa_buf, 10)); puts(" ");
+    puts(TEST_ITOA_OR_PANIC(0713275, itoa_buf, 8)); puts(" ");
+    puts(TEST_ITOA_OR_PANIC(0b010011000111, itoa_buf, 2)); puts(" ");
+    putnl();
 
     test_itoa_test_invalid_bases(itoa_buf);
 
-    vga_puts("Finished testing itoa\n");
+    puts("Finished testing itoa\n");
 }
