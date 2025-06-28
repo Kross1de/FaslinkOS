@@ -53,7 +53,7 @@ void test_itoa_panic(int value, char *str, int base) {
 void test_itoa_print_base(int base, char *itoa_buf) {
     vga_puts("  Printing ");
     test_itoa_print_base_str(base, itoa_buf);
-    vga_puts(" from 0 to 40\n");
+    vga_puts(" from 0 to 40: ");
     for (int i = 0; i <= 40; i++) {
         vga_puts(TEST_ITOA_OR_PANIC(i, itoa_buf, base)); vga_puts(" ");
     }
@@ -90,11 +90,14 @@ void test_itoa() {
     test_itoa_print_base(8, itoa_buf);
     test_itoa_print_base(2, itoa_buf);
 
-    vga_puts("    Printing negative base 10 numbers from -1 to -16\n");
+    vga_puts("    Printing negative base 10 numbers from -1 to -16: ");
     for (int i = -1; i > -16; i--) {
         vga_puts(TEST_ITOA_OR_PANIC(i, itoa_buf, 10)); vga_puts(" ");
     }
     vga_putnl();
+
+    vga_puts("    Printing -123 in hex shouldn't be negative: ");
+    vga_puts(TEST_ITOA_OR_PANIC(-123, itoa_buf, 16)); vga_putnl();
 
     vga_puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111)\n");
     vga_puts(TEST_ITOA_OR_PANIC(0xCAFEBABE, itoa_buf, 16)); vga_puts(" ");
