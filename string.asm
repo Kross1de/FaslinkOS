@@ -19,7 +19,11 @@ base_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
 ; variables
 p_offset = -1 * 1 * WORD_SIZE
 
-    ; TODO: check base is less than 36
+    mov eax, [ebp + base_offset]
+    cmp eax, 2
+    jl .error
+    cmp eax, 36
+    jg .error
     ; TODO: check if base is 10 and value is -ve
     mov eax, [ebp + str_offset]
     test eax, eax
@@ -55,6 +59,7 @@ p_offset = -1 * 1 * WORD_SIZE
     mov eax, [ebp + str_offset]
     jmp .return
 .error:
+    ; TODO: At some point we shouldn't print out
     push itoa_err_str
     call vga_puts
     mov eax, 0
