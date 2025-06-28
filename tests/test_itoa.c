@@ -74,7 +74,7 @@ void test_itoa_test_invalid_base(int base, char *itoa_buf) {
 }
 
 void test_itoa_test_invalid_bases(char *itoa_buf) {
-    puts("    Testing invalid bases: ");
+    puts("\tTesting invalid bases: ");
     test_itoa_test_invalid_base(37, itoa_buf);
     test_itoa_test_invalid_base(1, itoa_buf);
     test_itoa_test_invalid_base(-123, itoa_buf);
@@ -91,16 +91,16 @@ void test_itoa() {
     test_itoa_print_base(8, itoa_buf);
     test_itoa_print_base(2, itoa_buf);
 
-    puts("    Printing negative base 10 numbers from -1 to -16: ");
+    puts("\tPrinting negative base 10 numbers from -1 to -16: ");
     for (int i = -1; i > -16; i--) {
         puts(TEST_ITOA_OR_PANIC(i, itoa_buf, 10)); puts(" ");
     }
     putnl();
 
-    puts("    Printing -123 in hex shouldn't be negative: ");
+    puts("\tPrinting -123 in hex shouldn't be negative: ");
     puts(TEST_ITOA_OR_PANIC(-123, itoa_buf, 16)); putnl();
 
-    puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111): ");
+    puts("\tPrinting test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111): ");
     puts(TEST_ITOA_OR_PANIC(0xCAFEBABE, itoa_buf, 16)); puts(" ");
     puts(TEST_ITOA_OR_PANIC(951842673, itoa_buf, 10)); puts(" ");
     puts(TEST_ITOA_OR_PANIC(0713275, itoa_buf, 8)); puts(" ");

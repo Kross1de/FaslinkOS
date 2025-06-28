@@ -35,6 +35,9 @@ VGA_COLOUR_WHITE         = 15
 
 ASCII_NEWLINE         = 0x0a
 ASCII_CARRIAGE_RETURN = 0x0d
+ASCII_TAB             = 0x09
+
+NUM_SPACES_PER_TAB    = 4
 
 vga_init:
     mov word [vga_x], 0
@@ -59,6 +62,8 @@ vga_putchar:
     je .newline
     cmp eax, ASCII_CARRIAGE_RETURN
     je .carriage
+    cmp eax, ASCII_TAB
+    je .tab
     pushd [vga_y]
     pushd [vga_x]
     pushd [vga_bg_colour]
@@ -81,6 +86,16 @@ vga_putchar:
     call vga_scroll
 .carriage:
     mov dword [vga_x], 0
+    jmp .return
+.tab:
+    mov ebx, NUM_SPACES_PER_TAB
+.loop:
+    pushd " "
+    call vga_putchar
+    dec ebx
+    test ebx, ebx
+    je .return
+    jmp .loop
 .return:
     leave
     ret
