@@ -3,7 +3,7 @@ AS=fasm
 LD=ld
 CFLAGS=-m32 -nostdlib -ffreestanding -fno-pic -Wall -Wextra -Werror -fno-stack-protector
 LDFLAGS=-T linker.ld -melf_i386
-OBJS=boot/boot.o kernel.o vga.o string.o test.o tests/test_itoa.o stdio.o
+OBJS=boot/boot.o kernel.o vga.o string.o test.o tests/test_itoa.o tests/test_printf.o stdio.o
 
 all:build/disk.img
 
@@ -21,6 +21,9 @@ test.o:test.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 tests/test_itoa.o:tests/test_itoa.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+tests/test_printf.o:tests/test_printf.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 vga.o:vga.asm

@@ -16,4 +16,3 @@ kmain:
 .return:
 	leave
 	ret
-    
