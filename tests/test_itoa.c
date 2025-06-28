@@ -70,14 +70,15 @@ void test_itoa_test_invalid_base(int base, char *itoa_buf) {
         vga_puts(str); vga_putnl();
         panic();
     }
-    vga_puts("OK\n");
+    vga_puts("OK ");
 }
 
 void test_itoa_test_invalid_bases(char *itoa_buf) {
-    vga_puts("    Testing invalid bases\n");
+    vga_puts("    Testing invalid bases: ");
     test_itoa_test_invalid_base(37, itoa_buf);
     test_itoa_test_invalid_base(1, itoa_buf);
     test_itoa_test_invalid_base(-123, itoa_buf);
+    vga_putnl();
 }
 
 void test_itoa() {
@@ -99,7 +100,7 @@ void test_itoa() {
     vga_puts("    Printing -123 in hex shouldn't be negative: ");
     vga_puts(TEST_ITOA_OR_PANIC(-123, itoa_buf, 16)); vga_putnl();
 
-    vga_puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111)\n");
+    vga_puts("    Printing test values (0xCAFEBABE, 951842673, 0713275, 0b010011000111): ");
     vga_puts(TEST_ITOA_OR_PANIC(0xCAFEBABE, itoa_buf, 16)); vga_puts(" ");
     vga_puts(TEST_ITOA_OR_PANIC(951842673, itoa_buf, 10)); vga_puts(" ");
     vga_puts(TEST_ITOA_OR_PANIC(0713275, itoa_buf, 8)); vga_puts(" ");
