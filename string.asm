@@ -3,14 +3,23 @@ section '.text' executable
 ;; 32 bit protected mode
 use32
 public itoa
+public utoa
 public strnrev
 public memcpy
 
 include 'include/kernel.inc'
 include 'include/vga.inc'
 
+unsigned_flag_offset = -1 * 2 * WORD_SIZE
+utoa:
+    enter 2 * WORD_SIZE, 0
+    mov dword [ebp + unsigned_flag_offset], 0
+    jmp _itoa
 itoa:
-	enter 1 * WORD_SIZE, 0
+	enter 2 * WORD_SIZE, 0
+    mov dword [ebp + unsigned_flag_offset], 0
+    jmp _itoa
+_itoa:
 
 ; args
 value_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
@@ -24,12 +33,15 @@ p_offset = -1 * 1 * WORD_SIZE
     jl .error
     cmp eax, 36
     jg .error
+    mov eax, [ebp + unsigned_flag_offset]
+    and eax, eax
+    jnz .not_if_base10_neg
     mov eax, [ebp + base_offset]
 	cmp eax, 10
-	jnz .not_if
+	jnz .not_if_base10_neg
 	mov eax, [ebp + value_offset]
 	cmp eax, 0
-	jge .not_if
+	jge .not_if_base10_neg
 	
 	neg eax
 	mov ecx, [ebp + str_offset]
@@ -42,7 +54,7 @@ p_offset = -1 * 1 * WORD_SIZE
     add esp, 3*WORD_SIZE
 	mov eax, [ebp + str_offset]
 	jmp .return
-.not_if:
+.not_if_base10_neg:
     mov eax, [ebp + str_offset]
     test eax, eax
     jz .error

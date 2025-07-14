@@ -84,10 +84,14 @@ printf:
     add ebx, WORD_SIZE
     jmp .loop
 .percent_u:
-    push unimplemented_str
+    push 10
+    push itoa_temp_str
+    pushd [ebx]
+    call utoa
+    add esp, 3*WORD_SIZE
+    push eax
     call puts
-    add esp, WORD_SIZE
-    jmp .error
+    add ebx, WORD_SIZE
     jmp .loop
 .percent_percent:
     pushd '%'
