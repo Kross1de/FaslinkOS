@@ -8,6 +8,7 @@ public vga_puts
 public vga_putnl
 
 include 'include/string.inc'
+include 'include/kernel.inc'
 
 extrn busy_loop
 
@@ -37,7 +38,9 @@ ASCII_NEWLINE         = 0x0a
 ASCII_CARRIAGE_RETURN = 0x0d
 ASCII_TAB             = 0x09
 
-NUM_SPACES_PER_TAB    = 4
+
+NUM_SPACES_PER_TAB = 4
+
 
 vga_init:
     mov word [vga_x], 0
@@ -46,17 +49,19 @@ vga_init:
     mov word [vga_bg_colour], VGA_COLOUR_MAGENTA
     ret
 
+
 vga_putnl:
     enter 0, 0
     push ASCII_NEWLINE
     call vga_putchar
-    mov esp, ebp
+    add esp, WORD_SIZE
     leave
     ret
 
+
 vga_putchar:
     enter 0, 0
-    ; Ignore EAX, ECX, and EDX
+    push ebx
     mov eax, [ebp + 8]
     cmp eax, ASCII_NEWLINE
     je .newline
@@ -70,6 +75,7 @@ vga_putchar:
     pushd [vga_fg_colour]
     pushd [ebp + 8]
     call vga_putchar_at
+    add esp, 5*WORD_SIZE
     mov eax, [vga_x]
     inc eax
     cmp eax, VGA_WIDTH
@@ -80,10 +86,10 @@ vga_putchar:
     mov eax, [vga_y]
     inc eax
     mov [vga_y], eax
-
     cmp eax, VGA_HEIGHT
     jne .carriage
     call vga_scroll
+    ; fall through to carriage (so \n is equiv to \r\n (or even \n\r))
 .carriage:
     mov dword [vga_x], 0
     jmp .return
@@ -92,35 +98,40 @@ vga_putchar:
 .loop:
     pushd " "
     call vga_putchar
+    add esp, WORD_SIZE
     dec ebx
     test ebx, ebx
     je .return
     jmp .loop
 .return:
+    ; Return the character printed
+    mov eax, [ebp + 8]
+    pop ebx
     leave
     ret
+
 
 vga_puts:
     enter 0, 0
     push esi
-    push ebx
     xor eax, eax
     mov esi, [ebp + 8]
-    ; TODO: check for NULL
+    ; TODO check for NULL
 .loop:
     lodsb
     or al,al
     jz .return
     push eax
     call vga_putchar
+    add esp, WORD_SIZE
     jmp .loop
 .return:
-    ; TODO: error cases
+    ; TODO error cases
     mov eax, 0
-    pop ebx
     pop esi
     leave
     ret
+
 
 vga_putchar_at:
     enter 0, 0
@@ -142,8 +153,10 @@ vga_putchar_at:
     mov ch, al
     mov word [edx], cx
 .return:
+    call busy_loop
     leave
     ret
+
 
 vga_scroll:
     enter 0, 0
@@ -162,6 +175,7 @@ vga_scroll:
     sub eax, ebx
     push eax
     call memcpy
+    add esp, 3*WORD_SIZE
     cmp ecx, VGA_HEIGHT
     jge .return
     jmp .loop
@@ -169,6 +183,7 @@ vga_scroll:
     mov dword [vga_y], VGA_HEIGHT - 1
     leave
     ret
+
 
 section '.bss'
 vga_x:         dd 0

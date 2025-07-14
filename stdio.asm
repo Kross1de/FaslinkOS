@@ -24,7 +24,9 @@ printf:
     push esi
     push ebx
     xor eax, eax
-    mov esi, [ebp + 8]
+    mov esi, [ebp + STACK_ARGS_OFFSET + WORD_SIZE]
+    mov ebx, ebp
+    add ebx, STACK_ARGS_OFFSET + 2 * WORD_SIZE  ; current arg index
     ; TODO: check for null
 .loop:
     lodsb
@@ -33,7 +35,8 @@ printf:
     cmp eax, '%'
     je .percent
     push eax
-    call vga_putchar
+    call putchar
+    add esp, WORD_SIZE
     jmp .loop
     mov eax, 0
     jmp .return
@@ -56,33 +59,39 @@ printf:
     ; Invalid escape code
     jmp .error
 .percent_s:
-    push unimplemented_str
+    pushd [ebx]
     call puts
-    jmp .error
+    add esp, WORD_SIZE
+    add ebx, WORD_SIZE
     jmp .loop
 .percent_x:
     push unimplemented_str
     call puts
+    add esp, WORD_SIZE
     jmp .error
     jmp .loop
 .percent_o:
     push unimplemented_str
     call puts
+    add esp, WORD_SIZE
     jmp .error
     jmp .loop
 .percent_d:
     push unimplemented_str
     call puts
+    add esp, WORD_SIZE
     jmp .error
     jmp .loop
 .percent_u:
     push unimplemented_str
     call puts
+    add esp, WORD_SIZE
     jmp .error
     jmp .loop
 .percent_percent:
     pushd '%'
     call putchar
+    add esp, WORD_SIZE
     jmp .loop
 .error:
     ; TODO: diff error cases

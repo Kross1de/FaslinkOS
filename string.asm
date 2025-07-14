@@ -39,6 +39,7 @@ p_offset = -1 * 1 * WORD_SIZE
 	push ecx
 	push eax
 	call itoa
+    add esp, 3*WORD_SIZE
 	mov eax, [ebp + str_offset]
 	jmp .return
 .not_if:
@@ -67,12 +68,11 @@ p_offset = -1 * 1 * WORD_SIZE
 .end_loop:
     mov eax, [ebp + p_offset]
     mov dword [eax], 0
-
     sub eax, [ebp + str_offset]
     push eax
     pushd [ebp + str_offset]
     call strnrev
-
+    add esp, 2*WORD_SIZE
     mov eax, [ebp + str_offset]
     jmp .return
 .error:

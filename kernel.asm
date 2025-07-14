@@ -3,16 +3,19 @@ section '.text' executable
 public kmain
 extrn busy_loop
 
-include 'include/vga.inc'
+include 'include/stdio.inc'
 include 'include/string.inc'
-
-extrn run_tests
+include 'include/kernel.inc'
 
 use32
 
 kmain:
     enter 0, 0
-    call run_tests
+    push hello_str
+    call puts
+    add esp, WORD_SIZE
 .return:
 	leave
 	ret
+
+hello_str:  db "Hello from faslinkOS!", 0
