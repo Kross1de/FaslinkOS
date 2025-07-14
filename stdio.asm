@@ -9,6 +9,7 @@ public printf
 
 include 'include/kernel.inc'
 include 'include/vga.inc'
+include 'include/string.inc'
 
 puts:
     jmp vga_puts
@@ -65,22 +66,22 @@ printf:
     add ebx, WORD_SIZE
     jmp .loop
 .percent_x:
-    push unimplemented_str
-    call puts
-    add esp, WORD_SIZE
-    jmp .error
-    jmp .loop
+    push 16
+    jmp .itoa_puts 
 .percent_o:
-    push unimplemented_str
-    call puts
-    add esp, WORD_SIZE
-    jmp .error
-    jmp .loop
+    push 8
+    jmp .itoa_puts
 .percent_d:
-    push unimplemented_str
+    push 10
+    jmp .itoa_puts
+.itoa_puts:
+    push itoa_temp_str
+    pushd [ebx]
+    call itoa
+    add esp, 3*WORD_SIZE
+    push eax
     call puts
-    add esp, WORD_SIZE
-    jmp .error
+    add ebx, WORD_SIZE
     jmp .loop
 .percent_u:
     push unimplemented_str
@@ -103,3 +104,4 @@ printf:
     ret
 
 unimplemented_str: db "UNIMPLEMENTED", 10, 0
+itoa_temp_str: times 33 db 0
