@@ -59,7 +59,7 @@ boot:
     jmp CODE_SEG:second_sector ; long jump to the code segment
 
 panic16:
-    push panic_str
+    push panic16_str
     call bios_print
     ; TODO: print out registers
     ; TODO: print out call stack
@@ -84,7 +84,7 @@ include 'include/mbr.inc'
 include 'include/bios.inc'
 
 disk:      db 0x0
-panic_str: db "PANIC", 0
+panic16_str: db "PANIC", 0
 hello16_str: db "Hello from real mode", 0
 
 align 4

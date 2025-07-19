@@ -1,6 +1,5 @@
 format elf
 section '.text' executable
-;; 32 bit protected mode
 use32
 public vga_init
 public vga_putchar

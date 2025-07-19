@@ -1,6 +1,5 @@
 format elf
 section '.text' executable
-;; 32 bit protected mode
 use32
 public puts
 public putchar
