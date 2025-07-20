@@ -1,1 +1,1 @@
-/* TODO */
+extern int isdigit(int c);

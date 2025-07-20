@@ -12,6 +12,9 @@ boot32:
     mov esp, kernel_stack_top
     call vga_init
     call kmain
+    push kmain_fallout_str
+    call printf
+    add esp, 4
 panic:
 panic32:
     push panic32_str
@@ -41,6 +44,7 @@ busy_loop32:
     ret
 
 panic32_str:        db "PANIC", 10, 0
+kmain_fallout_str:  db "unexpected return from kmain", 10, 0
 dump_regs_fmt_str:  db "eax: 0x%x", 10
                     db "ecx: 0x%x", 10
                     db "edx: 0x%x", 10

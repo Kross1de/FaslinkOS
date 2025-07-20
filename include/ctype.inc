@@ -1,1 +1,1 @@
-; TODO
+extrn isdigit

@@ -8,7 +8,8 @@ public printf
 
 include 'include/kernel.inc'
 include 'include/vga.inc'
-include 'include/string.inc'
+include 'include/stdlib.inc'
+include 'include/ctype.inc'
 
 puts:
     jmp vga_puts

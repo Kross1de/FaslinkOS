@@ -5,9 +5,9 @@ public isdigit
 
 isdigit:
         enter 0, 0
-        cmp [ebp + 8], '0'
+        cmp dword [ebp + 8], '0'
         jl .fail
-        cmp [ebp + 8], '9'
+        cmp dword [ebp + 8], '9'
         jg .fail
         mov eax, 1
         jmp .return
