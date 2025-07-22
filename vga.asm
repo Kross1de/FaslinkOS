@@ -32,7 +32,6 @@ VGA_COLOUR_LIGHT_MAGENTA = 13
 VGA_COLOUR_LIGHT_BROWN   = 14
 VGA_COLOUR_WHITE         = 15
 
-
 ASCII_NEWLINE         = 0x0a
 ASCII_CARRIAGE_RETURN = 0x0d
 ASCII_TAB             = 0x09
@@ -48,7 +47,6 @@ vga_init:
     mov word [vga_bg_colour], VGA_COLOUR_MAGENTA
     ret
 
-
 vga_putnl:
     enter 0, 0
     push ASCII_NEWLINE
@@ -56,7 +54,6 @@ vga_putnl:
     add esp, WORD_SIZE
     leave
     ret
-
 
 vga_putchar:
     enter 0, 0
@@ -109,7 +106,6 @@ vga_putchar:
     leave
     ret
 
-
 vga_puts:
     enter 0, 0
     push esi
@@ -130,7 +126,6 @@ vga_puts:
     pop esi
     leave
     ret
-
 
 vga_putchar_at:
     enter 0, 0
@@ -155,7 +150,6 @@ vga_putchar_at:
     call busy_loop
     leave
     ret
-
 
 vga_scroll:
     enter 0, 0
@@ -182,7 +176,6 @@ vga_scroll:
     mov dword [vga_y], VGA_HEIGHT - 1
     leave
     ret
-
 
 section '.bss'
 vga_x:         dd 0

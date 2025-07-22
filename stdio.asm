@@ -45,6 +45,30 @@ printf:
     lodsb
     or al, al
     jz .error   ; Expected another char
+.width_check:
+    ; TODO: check if non-0 digit, if so it is a field width
+    ; needs atoi, or strtol
+    push eax
+    push eax
+    call isdigit
+    add esp, 4
+    test eax, eax
+    pop eax
+    jz .conversion_specifiers
+    ; TODO: check if digit is 0
+    push esi-8
+    call atoi
+    ; TODO: store atoi to something
+.skip_digits_loop:
+    lodsb
+    or al, al
+    jz .error
+    push eax
+    call isdigit
+    add esp, 4
+    test eax, eax
+    jnz .skip_digits_loop
+.conversion_specifiers:
     cmp eax, 's'
     je .percent_s
     cmp eax, 'x'

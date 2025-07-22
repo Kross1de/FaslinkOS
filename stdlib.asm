@@ -36,23 +36,23 @@ p_offset = -1 * 1 * WORD_SIZE
     and eax, eax
     jnz .not_if_base10_neg
     mov eax, [ebp + base_offset]
-	cmp eax, 10
-	jnz .not_if_base10_neg
-	mov eax, [ebp + value_offset]
-	cmp eax, 0
-	jge .not_if_base10_neg
+    cmp eax, 10
+    jnz .not_if_base10_neg
+    mov eax, [ebp + value_offset]
+    cmp eax, 0
+    jge .not_if_base10_neg
 	
-	neg eax
-	mov ecx, [ebp + str_offset]
-	mov byte [ecx], '-'
-	inc ecx
-	pushd [ebp + base_offset]
-	push ecx
-	push eax
-	call itoa
+    neg eax
+    mov ecx, [ebp + str_offset]
+    mov byte [ecx], '-'
+    inc ecx
+    pushd [ebp + base_offset]
+    push ecx
+    push eax
+    call itoa
     add esp, 3*WORD_SIZE
-	mov eax, [ebp + str_offset]
-	jmp .return
+    mov eax, [ebp + str_offset]
+    jmp .return
 .not_if_base10_neg:
     mov eax, [ebp + str_offset]
     test eax, eax
