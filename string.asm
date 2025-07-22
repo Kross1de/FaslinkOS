@@ -3,6 +3,7 @@ section '.text' executable
 use32
 public strnrev
 public memcpy
+public strlen
 
 include 'include/kernel.inc'
 
@@ -72,6 +73,19 @@ n_offset = STACK_ARGS_OFFSET + 3 * WORD_SIZE
     pop ecx
     pop edi
     pop esi
+    leave
+    ret
+
+strlen:
+    enter 0, 0
+s_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+    xor eax, eax
+    mov ecx, [ebp + str_offset]
+.loop:
+    cmp byte [ecx], 0
+    jz .return
+    inc ecx
+.return:
     leave
     ret
 
