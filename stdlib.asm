@@ -97,6 +97,7 @@ atoi:
 str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     enter 0, 0
     push ebx
+    push esi
     mov esi, [ebp + str_offset]
     mov ecx, 0
 .loop:
@@ -119,6 +120,7 @@ str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     jmp .loop
 .return:
     mov eax, ecx
+    pop esi
     pop ebx
     leave
     ret
