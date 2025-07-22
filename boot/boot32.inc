@@ -9,6 +9,12 @@ public halt
 public busy_loop
 
 boot32:
+    jmp .start
+    dd kmain
+    dd printf
+    extrn atoi
+    dd atoi
+.start:
     mov esp, kernel_stack_top
     call vga_init
     call kmain
@@ -31,6 +37,7 @@ halt:
 halt32:
     cli
     hlt
+
 
 busy_loop:
 busy_loop32:

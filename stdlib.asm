@@ -8,6 +8,7 @@ public atoi
 include 'include/kernel.inc'
 include 'include/string.inc'
 include 'include/stdio.inc'
+include 'include/ctype.inc'
 
 unsigned_flag_offset = -1 * 2 * WORD_SIZE
 utoa:
@@ -93,12 +94,32 @@ p_offset = -1 * 1 * WORD_SIZE
     ret
 
 atoi:
+str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     enter 0, 0
-    push atoi_unimpl_str
-    call printf
-    extrn panic
-    jmp panic
+    push ebx
+    mov esi, [ebp + str_offset]
+    mov ecx, 0
+.loop:
+    xor eax, eax
+    lodsb
+    or al, al
+    jz .return
+    mov ebx, eax
+    push eax
+    call isdigit
+    add esp, WORD_SIZE
+    test eax, eax
+    jz .return
+    sub ebx, '0'
+    mov eax, 10
+    xchg eax, ecx
+    mul ecx
+    add eax, ebx
+    xchg eax, ecx
+    jmp .loop
 .return:
+    mov eax, ecx
+    pop ebx
     leave
     ret
 
