@@ -22,7 +22,7 @@ putnl:
     jmp vga_putnl
 
 printf:
-    enter WORD_SIZE, 0
+    enter 2 * WORD_SIZE, 0
     push esi
     push ebx
 
@@ -31,6 +31,7 @@ format_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
 va_args_offset =STACK_ARGS_OFFSET + 2 * WORD_SIZE
 ; variables
 width_offset = -1 * 1 * WORD_SIZE
+padding_offset = -1 * 2 * WORD_SIZE
 
     xor eax, eax
     mov esi, [ebp + format_offset]
@@ -53,6 +54,13 @@ width_offset = -1 * 1 * WORD_SIZE
     lodsb
     or al, al
     jz .error   ; Expected another char
+.zero_padding_flag_check:
+    cmp eax, '0'
+    je .zero_padding_flag
+    mov dword [ebp + padding_offset], ' '
+    jmp .width_check
+.zero_padding_flag:
+    mov dword [ebp + padding_offset], '0'
 .width_check:
     ; TODO: check if non-0 digit, if so it is a field width
     ; needs atoi, or strtol
@@ -64,13 +72,13 @@ width_offset = -1 * 1 * WORD_SIZE
     test eax, eax
     pop eax
     jz .conversion_specifiers
-    ; TODO: check if digit is 0
+.chop_width:
     dec esi
     push esi
     inc esi
     call atoi
     mov [ebp + width_offset], eax
-.skip_digits_loop:
+.chop_width_loop:
     lodsb
     or al, al
     jz .error
@@ -80,7 +88,7 @@ width_offset = -1 * 1 * WORD_SIZE
     add esp, 4
     test eax, eax
     pop eax
-    jnz .skip_digits_loop
+    jnz .chop_width_loop
 .conversion_specifiers:
     cmp eax, 's'
     je .percent_s
@@ -134,7 +142,7 @@ width_offset = -1 * 1 * WORD_SIZE
 .width_loop:
     cmp dword [ebp + width_offset], 0
     jle .puts
-    push ' '
+    push dword [ebp + padding_offset]
     call putchar
     add esp, WORD_SIZE
     dec dword [ebp + width_offset]
