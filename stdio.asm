@@ -127,7 +127,7 @@ width_offset = -1 * 1 * WORD_SIZE
     push eax
     jmp .puts_with_length
 .puts_with_length:
-    push dword [esp - WORD_SIZE]
+    push dword [esp]
     call strlen
     add esp, WORD_SIZE
     sub [ebp + width_offset], eax

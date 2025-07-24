@@ -125,6 +125,4 @@ str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     leave
     ret
 
-atoi_unimpl_str: db "unimplemented", 10, 0
-
 itoa_alpha_str: db "0123456789abcdefghijklmnopqrstuvwxyz", 0
