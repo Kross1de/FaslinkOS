@@ -10,6 +10,7 @@ include 'include/kernel.inc'
 include 'include/vga.inc'
 include 'include/stdlib.inc'
 include 'include/ctype.inc'
+include 'include/string.inc'
 
 puts:
     jmp vga_puts
@@ -21,13 +22,20 @@ putnl:
     jmp vga_putnl
 
 printf:
-    enter 0, 0
+    enter WORD_SIZE, 0
     push esi
     push ebx
+
+; args
+format_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+va_args_offset =STACK_ARGS_OFFSET + 2 * WORD_SIZE
+; variables
+width_offset = -1 * 1 * WORD_SIZE
+
     xor eax, eax
-    mov esi, [ebp + STACK_ARGS_OFFSET + WORD_SIZE]
+    mov esi, [ebp + format_offset]
     mov ebx, ebp
-    add ebx, STACK_ARGS_OFFSET + 2 * WORD_SIZE  ; current arg index
+    add ebx, va_args_offset  ; current arg index
     ; TODO: check for null
 .loop:
     lodsb
@@ -49,6 +57,7 @@ printf:
     ; TODO: check if non-0 digit, if so it is a field width
     ; needs atoi, or strtol
     push eax
+    mov word [ebp + width_offset], 0
     push eax
     call isdigit
     add esp, 4
@@ -56,17 +65,21 @@ printf:
     pop eax
     jz .conversion_specifiers
     ; TODO: check if digit is 0
-    push esi-8
+    dec esi
+    push esi
+    inc esi
     call atoi
-    ; TODO: store atoi to something
+    mov [ebp + width_offset], eax
 .skip_digits_loop:
     lodsb
     or al, al
     jz .error
     push eax
+    push eax
     call isdigit
     add esp, 4
     test eax, eax
+    pop eax
     jnz .skip_digits_loop
 .conversion_specifiers:
     cmp eax, 's'
@@ -85,10 +98,8 @@ printf:
     jmp .error
 .percent_s:
     pushd [ebx]
-    call puts
-    add esp, WORD_SIZE
     add ebx, WORD_SIZE
-    jmp .loop
+    jmp .puts_with_length
 .percent_x:
     push 16
     jmp .itoa_puts 
@@ -101,21 +112,36 @@ printf:
 .itoa_puts:
     push itoa_temp_str
     pushd [ebx]
+    add ebx, WORD_SIZE
     call itoa
     add esp, 3*WORD_SIZE
     push eax
-    call puts
-    add ebx, WORD_SIZE
-    jmp .loop
+    jmp .puts_with_length
 .percent_u:
     push 10
     push itoa_temp_str
     pushd [ebx]
+    add ebx, WORD_SIZE
     call utoa
     add esp, 3*WORD_SIZE
     push eax
+    jmp .puts_with_length
+.puts_with_length:
+    push dword [esp - WORD_SIZE]
+    call strlen
+    add esp, WORD_SIZE
+    sub [ebp + width_offset], eax
+.width_loop:
+    cmp dword [ebp + width_offset], 0
+    jle .puts
+    push ' '
+    call putchar
+    add esp, WORD_SIZE
+    dec dword [ebp + width_offset]
+    jmp .width_loop
+.puts:
     call puts
-    add ebx, WORD_SIZE
+    add esp, WORD_SIZE
     jmp .loop
 .percent_percent:
     pushd '%'
