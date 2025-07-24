@@ -85,6 +85,8 @@ s_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     cmp byte [ecx], 0
     jz .return
     inc ecx
+    inc eax
+    jmp .loop
 .return:
     leave
     ret
