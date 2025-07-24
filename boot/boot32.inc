@@ -23,10 +23,10 @@ boot32:
     add esp, 4
 panic:
 panic32:
+    pusha
     push panic32_str
     call printf
     add esp, 4
-    pusha
     push dump_regs_fmt_str
     call printf
     popa
@@ -52,12 +52,12 @@ busy_loop32:
 
 panic32_str:        db "PANIC", 10, 0
 kmain_fallout_str:  db "unexpected return from kmain", 10, 0
-dump_regs_fmt_str:  db "eax: 0x%x", 10
-                    db "ecx: 0x%x", 10
-                    db "edx: 0x%x", 10
-                    db "ebx: 0x%x", 10
-                    db "esp: 0x%x", 10
-                    db "ebp: 0x%x", 10
-                    db "esi: 0x%x", 10
-                    db "edi: 0x%x", 10
+dump_regs_fmt_str:  db "eax: 0x%8x", 10
+                    db "ecx: 0x%8x", 10
+                    db "edx: 0x%8x", 10
+                    db "ebx: 0x%8x", 10
+                    db "esp: 0x%8x", 10
+                    db "ebp: 0x%8x", 10
+                    db "esi: 0x%8x", 10
+                    db "edi: 0x%8x", 10
                     db 0
