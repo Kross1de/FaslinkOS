@@ -5,7 +5,7 @@ public boot
 
 org MBR_ENTRY
 
-BUSY_LOOP_SIZE = 5000000
+BUSY_LOOP_SIZE = 1000000
 
 ; Bit to set in special CPU register cr0
 PROTECTED_MODE = 00000001b
