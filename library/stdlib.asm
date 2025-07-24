@@ -3,6 +3,7 @@ section '.text' executable
 use32
 public itoa
 public utoa
+public itoA
 public atoi
 
 include 'include/kernel.inc'
@@ -11,13 +12,21 @@ include 'include/stdio.inc'
 include 'include/ctype.inc'
 
 unsigned_flag_offset = -1 * 2 * WORD_SIZE
+alphabet_offset = -1 * 3 * WORD_SIZE
 utoa:
-    enter 2 * WORD_SIZE, 0
+    enter 3 * WORD_SIZE, 0
     mov dword [ebp + unsigned_flag_offset], 0
+    mov dword [ebp + alphabet_offset], itoa_alpha_str
     jmp _itoa
 itoa:
-	enter 2 * WORD_SIZE, 0
+	enter 3 * WORD_SIZE, 0
     mov dword [ebp + unsigned_flag_offset], 0
+    mov dword [ebp + alphabet_offset], itoa_alpha_str
+    jmp _itoa
+itoA:
+    enter 3 * WORD_SIZE, 0
+    mov dword [ebp + unsigned_flag_offset], 0
+    mov dword [ebp + alphabet_offset], itoa_ALPHA_str
     jmp _itoa
 _itoa:
 
@@ -66,7 +75,7 @@ p_offset = -1 * 1 * WORD_SIZE
     mov ecx, [ebp + base_offset]
     div ecx
     mov [ebp + value_offset], eax
-    mov eax, itoa_alpha_str
+    mov eax, [ebp + alphabet_offset]
     add eax, edx
     mov dl, [eax]
     mov eax, [ebp + p_offset]
@@ -126,3 +135,4 @@ str_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
     ret
 
 itoa_alpha_str: db "0123456789abcdefghijklmnopqrstuvwxyz", 0
+itoa_ALPHA_str: db "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0

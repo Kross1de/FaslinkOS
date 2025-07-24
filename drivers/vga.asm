@@ -36,9 +36,7 @@ ASCII_NEWLINE         = 0x0a
 ASCII_CARRIAGE_RETURN = 0x0d
 ASCII_TAB             = 0x09
 
-
 NUM_SPACES_PER_TAB = 4
-
 
 vga_init:
     mov word [vga_x], 0
