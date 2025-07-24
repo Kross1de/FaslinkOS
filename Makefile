@@ -3,7 +3,7 @@ AS=fasm
 LD=ld
 CFLAGS=-m32 -nostdlib -ffreestanding -fno-pic -Wall -Wextra -Werror -fno-stack-protector
 LDFLAGS=-T linker.ld -melf_i386
-OBJS=boot/boot.o kernel.o vga.o string.o stdio.o stdlib.o ctype.o
+OBJS=boot/boot.o kernel/kernel.o drivers/vga.o library/string.o library/stdio.o library/stdlib.o library/ctype.o
 
 all:build/disk.img
 
@@ -14,22 +14,22 @@ build/disk.img:$(OBJS)
 boot/boot.o:boot/boot.asm
 	$(AS) $< $@
 
-kernel.o:kernel.asm
+kernel/kernel.o:kernel/kernel.asm
 	$(AS) $< $@
 
-vga.o:vga.asm
+drivers/vga.o:drivers/vga.asm
 	$(AS) $< $@
 
-stdio.o:stdio.asm
+library/stdio.o:library/stdio.asm
 	$(AS) $< $@
 
-string.o:string.asm
+library/string.o:library/string.asm
 	$(AS) $< $@
 
-stdlib.o:stdlib.asm
+library/stdlib.o:library/stdlib.asm
 	$(AS) $< $@
 
-ctype.o:ctype.asm
+library/ctype.o:library/ctype.asm
 	$(AS) $< $@
 
 clean:
