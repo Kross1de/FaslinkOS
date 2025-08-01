@@ -22,17 +22,18 @@ putnl:
     jmp vga_putnl
 
 printf:
-    enter 3 * WORD_SIZE, 0
+    enter 4 * WORD_SIZE, 0
     push esi
     push ebx
 
 ; args
-format_offset = STACK_ARGS_OFFSET + 1 * WORD_SIZE
-va_args_offset =STACK_ARGS_OFFSET + 2 * WORD_SIZE
+format_offset       = STACK_ARGS_OFFSET + 1 * WORD_SIZE
+va_args_offset      = STACK_ARGS_OFFSET + 2 * WORD_SIZE
 ; variables
-width_offset = -1 * 1 * WORD_SIZE
-padding_offset = -1 * 2 * WORD_SIZE
-prefix_offset = -1 * 3 * WORD_SIZE
+width_offset        = -1 * 1 * WORD_SIZE
+padding_c_offset    = -1 * 2 * WORD_SIZE
+padding_order_offset= -1 * 3 * WORD_SIZE
+prefix_offset       = -1 * 4 * WORD_SIZE
 
     xor eax, eax
     mov esi, [ebp + format_offset]
@@ -52,7 +53,8 @@ prefix_offset = -1 * 3 * WORD_SIZE
     mov eax, 0
     jmp .return
 .percent:
-    mov dword [ebp + padding_offset], ' '
+    mov dword [ebp + padding_c_offset], ' '
+    mov dword [ebp + padding_order_offset], 0
     mov dword [ebp + prefix_offset], empty_str
 .flags:
     ; read another char
@@ -71,12 +73,23 @@ prefix_offset = -1 * 3 * WORD_SIZE
     je .positive_flag
     jmp .field_width
 .zero_padding_flag:
-    mov dword [ebp + padding_offset], '0'
+    cmp dword [ebp + padding_order_offset], 2
+    je .flags
+    mov dword [ebp + padding_c_offset], '0'
+    cmp dword [ebp + prefix_offset], 0
+    jne .flags
+    mov dword [ebp + padding_order_offset], 1
     jmp .flags
 .alternate_form_flag:
     mov dword [ebp + prefix_offset], 0
+    cmp dword [ebp + padding_c_offset], '0'
+    jne .flags
+    mov dword [ebp + padding_order_offset], 1
     jmp .flags
 .left_justified_flag:
+    mov dword [ebp + padding_order_offset], 2
+    mov dword [ebp + padding_c_offset], ' '
+    jmp .flags
 .space_flag:
 .positive_flag:
     ; TODO
@@ -86,7 +99,7 @@ prefix_offset = -1 * 3 * WORD_SIZE
     ; TODO: check if non-0 digit, if so it is a field width
     ; needs atoi, or strtol
     push eax
-    mov word [ebp + width_offset], 0
+    mov dword [ebp + width_offset], 0
     push eax
     call isdigit
     add esp, 4
@@ -211,30 +224,54 @@ prefix_offset = -1 * 3 * WORD_SIZE
     push eax
     jmp .puts_with_length
 .puts_with_length:
+    ; TODO: assert if padding_order_offset is out of range
+    cmp dword [ebp + padding_order_offset], 0
+    jl .error
+    cmp dword [ebp + padding_order_offset], 2
+    jg .error
+
+    cmp dword [ebp + padding_order_offset], 0
+    jne .puts_prefix
+    call .padding
+.puts_prefix:
+    push dword [ebp + prefix_offset]
+    call puts
+    add esp, WORD_SIZE
+    dec dword [ebp + padding_order_offset]
+    cmp dword [ebp + padding_order_offset], 0
+    jne .puts
+    call .padding
+.puts:
+    call puts
+    add esp, WORD_SIZE
+    dec dword [ebp + padding_order_offset]
+    cmp dword [ebp + padding_order_offset], 0
+    jne .loop
+    sub esp, WORD_SIZE
+    call .padding
+    add esp, WORD_SIZE
+    jmp .loop
+
+.padding:
     push dword [ebp + prefix_offset]
     call strlen
     add esp, WORD_SIZE
     sub [ebp + width_offset], eax
-    push dword [esp]
+    pushd [esp + 4]
     call strlen
     add esp, WORD_SIZE
     sub [ebp + width_offset], eax
-.width_loop:
+.padding_loop:
     cmp dword [ebp + width_offset], 0
-    jle .puts
-    push dword [ebp + padding_offset]
+    jle .end_padding
+    push dword [ebp + padding_c_offset]
     call putchar
     add esp, WORD_SIZE
     dec dword [ebp + width_offset]
-    jmp .width_loop
-.puts:
-    ; TODO: prefix should be before padding if 0 flag set
-    push dword [ebp + prefix_offset]
-    call puts
-    add esp, WORD_SIZE
-    call puts
-    add esp, WORD_SIZE
-    jmp .loop
+    jmp .padding_loop
+.end_padding:
+    ret
+
 .error:
     ; TODO: diff error cases
     mov eax, -1
