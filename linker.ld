@@ -8,8 +8,16 @@ SECTIONS {
 		*(.boot32)
 		*(.text)
 	 }
+     .rodata :
+     {
+         *(.rodata)
+     }
 	 .bss :
 	 {
 		*(.bss)
 	 }
+     .magic :
+     {
+         *(.magic)
+     }
 }

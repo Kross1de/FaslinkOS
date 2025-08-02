@@ -1,4 +1,3 @@
-;; 32 bit protected mode
 use32
 
 extrn kmain
@@ -7,6 +6,8 @@ extrn printf
 public panic
 public halt
 public busy_loop
+
+MAGIC = 0x1abcdef9
 
 boot32:
     jmp .start
@@ -17,6 +18,15 @@ boot32:
 .start:
     mov esp, kernel_stack_top
     call vga_init
+
+    cmp dword [magic], MAGIC
+    je .magic_correct
+    push kmain_magic_str
+    call printf
+    add esp, 4
+    jmp panic
+
+.magic_correct:
     call kmain
     push kmain_fallout_str
     call printf
@@ -51,7 +61,8 @@ busy_loop32:
     ret
 
 panic32_str:        db "PANIC", 10, 0
-kmain_fallout_str:  db "unexpected return from kmain", 10, 0
+kmain_fallout_str:  db "ERROR: unexpected return from kmain", 10, 0
+kmain_magic_str:    db "ERROR: could not read all source code", 10, 0
 dump_regs_fmt_str:  db "eax: 0x%08x", 10
                     db "ecx: 0x%08x", 10
                     db "edx: 0x%08x", 10
@@ -61,3 +72,8 @@ dump_regs_fmt_str:  db "eax: 0x%08x", 10
                     db "esi: 0x%08x", 10
                     db "edi: 0x%08x", 10
                     db 0
+
+section '.magic'
+public magic
+magic:
+dd MAGIC
