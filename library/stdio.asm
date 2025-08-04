@@ -204,10 +204,31 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     jmp .percent_x
 .percent_c:
     ; TODO: putchar with width
+    ; TODO: assert if padding_order_offset is out of range
+    cmp dword [ebp + padding_order_offset], 0
+    jl .error
+    ; %c doesn't have a prefix, so 1 is error here
+    cmp dword [ebp + padding_order_offset], 1
+    je .error
+    cmp dword [ebp + padding_order_offset], 2
+    jg .error
+
+    dec dword [ebp + width_offset]
+
+    cmp dword [ebp + padding_order_offset], 0
+    jne .putchar
+    call .padding
+.putchar:
+    ; %c doesn't have a prefix, so skip 1
+    dec dword [ebp + padding_order_offset]
     pushd [ebx]
     add ebx, WORD_SIZE
     call putchar
     add esp, WORD_SIZE
+    dec dword [ebp + padding_order_offset]
+    cmp dword [ebp + padding_order_offset], 0
+    jne .loop
+    call .padding
     jmp .loop
 .percent_percent:
     pushd '%'
@@ -229,6 +250,15 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     jl .error
     cmp dword [ebp + padding_order_offset], 2
     jg .error
+
+    push dword [ebp + prefix_offset]
+    call strlen
+    add esp, WORD_SIZE
+    sub [ebp + width_offset], eax
+    pushd [esp]
+    call strlen
+    add esp, WORD_SIZE
+    sub [ebp + width_offset], eax
 
     cmp dword [ebp + padding_order_offset], 0
     jne .puts_prefix
@@ -253,14 +283,6 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     jmp .loop
 
 .padding:
-    push dword [ebp + prefix_offset]
-    call strlen
-    add esp, WORD_SIZE
-    sub [ebp + width_offset], eax
-    pushd [esp + 4]
-    call strlen
-    add esp, WORD_SIZE
-    sub [ebp + width_offset], eax
 .padding_loop:
     cmp dword [ebp + width_offset], 0
     jle .end_padding
