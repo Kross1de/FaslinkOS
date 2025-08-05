@@ -56,6 +56,8 @@ vga_putnl:
 vga_putchar:
     enter 0, 0
     push ebx
+    pushfd
+    cli
     mov eax, [ebp + 8]
     cmp eax, ASCII_NEWLINE
     je .newline
@@ -99,6 +101,11 @@ vga_putchar:
     jmp .loop
 .return:
     ; Return the character printed
+    pop ebx
+    test ebx, 0x200
+    jz .no_interrupts
+    sti
+.no_interrupts:
     mov eax, [ebp + 8]
     pop ebx
     leave

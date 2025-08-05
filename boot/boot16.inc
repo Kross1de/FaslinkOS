@@ -69,6 +69,7 @@ panic16:
 halt16:
     cli
     hlt
+    jmp halt16
 
 busy_loop16:
     mov eax, BUSY_LOOP_SIZE

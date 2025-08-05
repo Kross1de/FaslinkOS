@@ -14,6 +14,8 @@ kmain:
     push hello_str
     call puts
     add esp, WORD_SIZE
+.loop:
+    jmp .loop
 .return:
 	leave
 	ret

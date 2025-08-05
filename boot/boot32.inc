@@ -3,16 +3,19 @@ use32
 extrn kmain
 extrn vga_init
 extrn printf
+extrn pic_init
 public panic
 public halt
 public busy_loop
 
 MAGIC = 0x1abcdef9
+IDT_SIZE = 32 + 16
 
 boot32:
     jmp .start
     dd magic
     dd int3_handler
+    dd busy_loop
 .start:
     mov esp, kernel_stack_top
     call vga_init
@@ -28,6 +31,9 @@ boot32:
 
 .magic_correct:
     call idt_init
+    call pic_init
+    sti
+
     call kmain
     push kmain_fallout_str
     call printf
@@ -48,6 +54,7 @@ halt:
 halt32:
     cli
     hlt
+    jmp halt
 
 busy_loop:
 busy_loop32:
