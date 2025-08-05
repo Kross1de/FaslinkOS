@@ -1,4 +1,3 @@
-;; 16 bit real mode
 use16
 
 ; MBR

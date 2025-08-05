@@ -57,24 +57,25 @@ bios_disk_read:
     mov bp, sp
     push bx
 
-    push BIOS_DISK_READ_RETRIES
-.loop:
-    pop ax
+    pushw 1
+    call bios_disk_read_sectors
+    add sp, 2
     test ax, ax
-    je .failure
-    dec ax
-    push ax
+    jnz .failure
 
-    mov ah, BIOS_DISK_READ_SECTORS
-    mov al, 53  ; sectors to read
-    mov ch, 0   ; cylinder idx
-    mov dh, 0   ; head idx
-    mov cl, 2   ; sector idx (second 512 bytes)
-    mov dl, [disk] ; disk idx
-    mov bx, second_sector
-    int BIOS_DISK
-    jnc .success
-    jmp .loop
+    mov ax, [0x7e02]
+    sub ax, 0x7e00
+    mov cx, 512
+    div cx ; sectors to read
+    inc al
+    pushw ax
+    call bios_disk_read_sectors
+    add sp, 2
+    test ax, ax
+    jnz .failure
+
+    jmp .success
+
 .failure:
     push bios_disk_read_failure_str
     call bios_print
@@ -86,6 +87,36 @@ bios_disk_read:
     pop bx
     mov sp, bp
     pop bp
+    ret
+
+bios_disk_read_sectors:
+    enter 0, 0
+    push BIOS_DISK_READ_RETRIES
+.loop:
+    pop ax
+    test ax, ax
+    je .failure
+    dec ax
+    push ax
+
+    mov ah, BIOS_DISK_READ_SECTORS
+    mov al, [bp +4]  ; sectors to read
+    mov ch, 0   ; cylinder idx
+    mov dh, 0   ; head idx
+    mov cl, 2   ; sector idx (second 512 bytes)
+    mov dl, [disk] ; disk idx
+    mov bx, second_sector
+    int BIOS_DISK
+    jnc .success
+    jmp .loop
+.failure:
+    mov ax, 1
+    jmp .return
+.success:
+    mov ax, 0
+.return:
+    pop bx
+    leave
     ret
 
 bios_print:

@@ -52,7 +52,9 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     jmp .loop
     mov eax, 0
     jmp .return
+
 .percent:
+    ; TODO: docs
     mov dword [ebp + padding_c_offset], ' '
     mov dword [ebp + padding_order_offset], 0
     mov dword [ebp + prefix_offset], empty_str
@@ -72,6 +74,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     cmp eax, '+'
     je .positive_flag
     jmp .field_width
+
 .zero_padding_flag:
     cmp dword [ebp + padding_order_offset], 2
     je .flags
@@ -91,15 +94,25 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     mov dword [ebp + padding_c_offset], ' '
     jmp .flags
 .space_flag:
+    cmp dword [ebp + prefix_offset], positive_prefix_str
+    je .flags
+    mov dword [ebp + prefix_offset], space_prefix_str
+    cmp dword [ebp + padding_c_offset], '0'
+    jne .flags
+    mov dword [ebp + padding_order_offset], 1
+    jmp .flags
 .positive_flag:
-    ; TODO
-    jmp .error
+    mov dword [ebp + prefix_offset], positive_prefix_str
+    cmp dword [ebp + padding_c_offset], '0'
+    jne .flags
+    mov dword [ebp + padding_order_offset], 1
+    jmp .flags
 
 .field_width:
-    ; TODO: check if non-0 digit, if so it is a field width
-    ; needs atoi, or strtol
     push eax
     mov dword [ebp + width_offset], 0
+    cmp al, '*'
+    je .field_width_str
     push eax
     call isdigit
     add esp, 4
@@ -115,7 +128,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
 .chop_width_loop:
     lodsb
     or al, al
-    jz .error
+    jz .error      ; Expected something after the digits
     push eax
     push eax
     call isdigit
@@ -123,6 +136,15 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     test eax, eax
     pop eax
     jnz .chop_width_loop
+    jmp .precision
+.field_width_str:
+    mov eax, [ebx]
+    mov [ebp + width_offset], eax
+    add ebx, WORD_SIZE
+    lodsb
+    or al, al
+    jz .error     ; Expected something after the star
+    jmp .precision
 
 .precision:
     ; TODO
@@ -153,6 +175,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     ; Invalid escape code
     jmp .error
 .percent_s:
+    mov dword [ebp + prefix_offset], empty_str
     pushd [ebx]
     add ebx, WORD_SIZE
     jmp .puts_with_length
@@ -160,20 +183,29 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     push 16
     cmp dword [ebp + prefix_offset], 0
     je .percent_x_alternate
+    mov dword [ebp + prefix_offset], empty_str
     jmp .itoa_puts
 .percent_x_alternate:
     mov dword [ebp + prefix_offset], hex_prefix_str
-    jmp .itoa_puts 
+    jmp .itoa_puts
 .percent_o:
     push 8
     cmp dword [ebp + prefix_offset], 0
     je .percent_o_alternate
+    mov dword [ebp + prefix_offset], empty_str
     jmp .itoa_puts
 .percent_o_alternate:
     mov dword [ebp + prefix_offset], octal_prefix_str
     jmp .itoa_puts
 .percent_d:
 .percent_i:
+    cmp dword [ebx], 0
+    jge .percent_d_positive
+    mov dword [ebp + prefix_offset], negative_prefix_str
+    cmp dword [ebp + padding_c_offset], '0'
+    jne .percent_d_positive
+    mov dword [ebp + padding_order_offset], 1
+.percent_d_positive:
     push 10
     jmp .itoa_puts
 .percent_X:
@@ -186,6 +218,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     push eax
     cmp dword [ebp + prefix_offset], 0
     je .percent_X_alternate
+    mov dword [ebp + prefix_offset], empty_str
     jmp .puts_with_length
 .percent_X_alternate:
     mov dword [ebp + prefix_offset], hex_prefix_str
@@ -203,7 +236,6 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     mov dword [ebp + prefix_offset], 0
     jmp .percent_x
 .percent_c:
-    ; TODO: putchar with width
     ; TODO: assert if padding_order_offset is out of range
     cmp dword [ebp + padding_order_offset], 0
     jl .error
@@ -213,6 +245,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     cmp dword [ebp + padding_order_offset], 2
     jg .error
 
+    mov dword [ebp + prefix_offset], empty_str
     dec dword [ebp + width_offset]
 
     cmp dword [ebp + padding_order_offset], 0
@@ -236,14 +269,21 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     add esp, WORD_SIZE
     jmp .loop
 
+; TODO: check for null prefix for a, A, e, E, f, F, g, G
+
 .itoa_puts:
     push itoa_temp_str
     pushd [ebx]
     add ebx, WORD_SIZE
     call itoa
     add esp, 3*WORD_SIZE
+    cmp byte [eax], '-'
+    jne .not_negative
+    inc eax
+.not_negative:
     push eax
     jmp .puts_with_length
+
 .puts_with_length:
     ; TODO: assert if padding_order_offset is out of range
     cmp dword [ebp + padding_order_offset], 0
@@ -298,6 +338,7 @@ prefix_offset       = -1 * 4 * WORD_SIZE
     ; TODO: diff error cases
     mov eax, -1
 .return:
+    ; TODO: return value
     pop ebx
     pop esi
     leave
@@ -307,3 +348,6 @@ itoa_temp_str: times 33 db 0
 empty_str: db "", 0
 hex_prefix_str: db "0x", 0
 octal_prefix_str: db "0", 0
+negative_prefix_str: db "-", 0
+space_prefix_str: db " ", 0
+positive_prefix_str: db "+", 0
