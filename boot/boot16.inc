@@ -9,13 +9,15 @@ BUSY_LOOP_SIZE = 1000000
 ; Bit to set in special CPU register cr0
 PROTECTED_MODE = 00000001b
 
-REAL_STACK_SIZE = 128 ; Not big, but enough to call some basic functions
-
 boot:
     jmp 0x0000:.flushcs
 
 .flushcs:
-    mov sp, real_stack_top
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov ss, ax
+    mov sp, 0x7c00
 
     push hello16_str
     call bios_print
@@ -85,11 +87,6 @@ include 'include/bios.inc'
 disk:      db 0x0
 panic16_str: db "PANIC", 0
 hello16_str: db "Hello from real mode", 0
-
-align 4
-real_stack_bottom:
-times REAL_STACK_SIZE db 0
-real_stack_top:
 
 times (MBR_SIZE - 2) - ($-$$) db 0
 dw MBR_MAGIC

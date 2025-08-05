@@ -60,30 +60,9 @@ busy_loop32:
 .return:
     ret
 
-int3_handler:
-    iret
-
-idt_init:
-    lidt [idt_pointer]
-.int3:
-    mov eax, int3_handler
-    mov [idt_start + 3*8], ax
-    mov word [idt_start + 3*8 + 2], CODE_SEG
-    mov byte [idt_start + 3*8 + 4], 0
-    mov byte [idt_start + 3*8 + 5], 0x8E
-    shr eax, 16
-    mov word [idt_start + 3*8 + 6], ax
-    ret
-
-idt_start:
-    times 50 dq 0
-idt_end:
-idt_pointer:
-    dw idt_end - idt_start
-    dd idt_start
+include 'include/idt.inc'
 
 panic32_str:        db "PANIC", 10, 0
-int3_str:           db "INT3 called", 10, 0
 kmain_fallout_str:  db "ERROR: unexpected return from kmain", 10, 0
 kmain_magic_str:    db "ERROR: could not read all source code, magic: %p, diff: %p", 10, 0
 dump_regs_fmt_str:  db "eax: %#010x", 10
