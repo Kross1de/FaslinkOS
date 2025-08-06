@@ -1,2 +1,8 @@
 WORD_SIZE = 4
 STACK_ARGS_OFFSET = WORD_SIZE
+
+ASCII_NEWLINE           = 0x0a
+ASCII_CARRIAGE_RETURN   = 0x0d
+ASCII_TAB               = 0x09
+ASCII_ESCAPE            = 0x1b
+ASCII_BACKSPACE         = 0x08

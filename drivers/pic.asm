@@ -3,6 +3,7 @@ section '.text' executable
 use32
 public pic_init
 
+extrn keyboard_get_scancode
 extrn idt_add_entry
 
 PIC1_COMMAND		= 0x20
@@ -34,6 +35,15 @@ timer_handler:
 	popa
 	iret
 
+keyboard_handler:
+	pusha
+	call keyboard_get_scancode
+	pushd KEYBOARD
+	call pic_send_eoi
+	add esp, 4
+	popa
+	iret
+
 pic_send_eoi:
 	enter 0, 0
 	cmp dword [ebp + 8], 8
@@ -53,6 +63,12 @@ pic_init:
 	push PIC1_OFFSET + TIMER
 	call idt_add_entry
 	add esp, 8
+
+	push keyboard_handler
+	push PIC1_OFFSET + KEYBOARD
+	call idt_add_entry
+	add esp, 8
+
 	ret
 
 pic_initialize:
