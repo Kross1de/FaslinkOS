@@ -116,7 +116,7 @@ scancodes1:
     db 'k'
     db 'l'
     db ';'
-    db 0
+    db "'" 
     db '`'
     db 0
     db '\'
