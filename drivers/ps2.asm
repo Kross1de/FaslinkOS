@@ -9,16 +9,22 @@ PS2_KEYBOARD_PORT = 0x60
 
 keyboard_get_scancode:
     enter 0, 0
+    xor eax, eax
+    xor edx, edx
     in al, PS2_KEYBOARD_PORT
-    xor ah, ah
     test al, 0x80
     jz .pressed
     jmp .return
 .pressed:
+    int 3
     mov ecx, scancodes1
     add ecx, eax
-    mov edx, [ecx]
-    test edx, edx
+    cmp ecx, scancodes1
+    jl .non_ascii
+    cmp ecx, scancodes1end
+    jge .non_ascii
+    mov dl, [ecx]
+    test dl,dl
     jz .non_ascii
     cmp edx, ASCII_ESCAPE
     jz .escape
@@ -57,6 +63,7 @@ keyboard_get_scancode:
     push unknown_str
     call printf
     add esp, 8
+    jmp .return
 .return:
     leave
     ret
@@ -162,3 +169,4 @@ scancodes1:
     db 0
     db 0
     db 0
+scancodes1end:
